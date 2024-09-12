@@ -1,4 +1,4 @@
-Project Title:
+Project Title: Sportacular
 
 Project Team 5:
     Jacob Mangini
@@ -8,16 +8,48 @@ Project Team 5:
     Shiven Chokshi
 
 App Description:
+    Our app will allow users to track their favorite <sport> team and players. The app will be able to track
+    scores from across the league with the users favorited team(s) automatically displaying first. It will
+    also have allow the user to be able to keep track of their favorited players' stats for their current game and the season.
+    The app will also be able to display the standing from across the league.
 
 Minimal Goals:
+    Three main tabs
+        - Scores
+            *Displays the scores of the league for the current day/week
+            *Users favorited team(s) matchups at the top
+            *Ability to select a game and see more stats about the game
+        - Players
+            *Displays a list of the users favorited players
+            *Displays the player's stats for the current game
+            *Ability to click on a player to see expanded view of stats along with stats for the season
+        - Standings
+            *Displays the current standings of the league's active season
+    Be a drawer with user notification preferences
+        - notifications for favorited team(s) games
+        - notification for favorited player(s) plays in a game
 
 Stretch Goals:
+    - Integration of multiple sports
+    - A way to see a players fantasy points based of different types of fantasy formats
+        *Potentially a way to add your team to the app to be able to see teams score
+    - 
 
 Project Timeline:
     Milestone 1:
+        - implementation of 3rd party api for the sport
+        - all 3 tabs minimally implemented
+            *display the standings
+            *display scores
+            *display player info
 
     Milestone 2:
+        - allow user to select favorite teams and players
+        - allow user to see expanded stats of players and games
+        - send notifications when a favorited team scores
 
     Milestone 3:
+        - notification preference drawer for teams, games, and players
+        - give suggestion of players to follow based on user's favorited team
 
     Final Submission
