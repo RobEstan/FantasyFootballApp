@@ -8,8 +8,8 @@ Project Team 5:
     Shiven Chokshi
 
 App Description:
-    Our app will allow users to track their favorite <sport> team and players. The app will be able to track
-    scores from across the league with the users favorited team(s) automatically displaying first. It will
+    Our app will allow users to track their favorite NFL team(s) and players. The app will be able to track
+    scores from across the league with the users favorited team(s) automatically display first. It will
     also have allow the user to be able to keep track of their favorited players' stats for their current game and the season.
     The app will also be able to display the standing from across the league.
 
@@ -33,11 +33,10 @@ Stretch Goals:
     - Integration of multiple sports
     - A way to see a players fantasy points based of different types of fantasy formats
         *Potentially a way to add your team to the app to be able to see teams score
-    - 
 
 Project Timeline:
     Milestone 1:
-        - implementation of 3rd party api for the sport
+        - implementation of 3rd party api for the NFL
         - all 3 tabs minimally implemented
             *display the standings
             *display scores
