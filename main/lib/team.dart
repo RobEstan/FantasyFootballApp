@@ -5,6 +5,7 @@ class Team {
   final String coach;
   final String stadium;
   final String logo;
+  final int id;
 
   Team({
     required this.abbreviation,
@@ -12,6 +13,7 @@ class Team {
     required this.city,
     required this.coach,
     required this.stadium,
-    required this.logo
+    required this.logo,
+    required this.id,
   });
 }
