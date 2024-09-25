@@ -14,7 +14,7 @@ App Description:
     The app will also be able to display the standing from across the league.
 
 Minimal Goals:
-    Three main tabs
+    5 main tabs
         - Scores
             *Displays the scores of the league for the current day/week
             *Users favorited team(s) matchups at the top
@@ -25,6 +25,11 @@ Minimal Goals:
             *Ability to click on a player to see expanded view of stats along with stats for the season
         - Standings
             *Displays the current standings of the league's active season
+        - Favorited/Home
+            *Latest game
+            *Team info
+            *Upcoming game
+        - Teams
     Be a drawer with user notification preferences
         - notifications for favorited team(s) games
         - notification for favorited player(s) plays in a game
@@ -41,6 +46,9 @@ Project Timeline:
             *display the standings
             *display scores
             *display player info
+            *display teams
+            *display favorites/home
+                -hardcoded team
 
     Milestone 2:
         - allow user to select favorite teams and players

@@ -12,14 +12,14 @@ class DisplayTeam extends StatelessWidget{
     return SafeArea(child: Scaffold(
       appBar: AppBar(
         title: Text(team.name),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary
+        backgroundColor: Theme.of(context).colorScheme.primary
       ),
       body: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Image(image: NetworkImage(team.logo, scale: 1.5)),
+                Container(width: 75, height: 75, child: Image(image: NetworkImage(team.logo, scale: 1.5))),
                 Text(team.name, style: Theme.of(context).textTheme.headlineLarge,)
               ],
             ),
