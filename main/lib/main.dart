@@ -1,10 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:main/team.dart';
-import './display_team.dart';
-// import './player.dart';
+import 'package:main/teams_tab.dart';
+import './favorites_tab.dart';
+import './players_tab.dart';
+import './scores_tab.dart';
+import './standings_tab.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -63,50 +65,40 @@ class _MyApp extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: SafeArea(
-          child: Scaffold(
-                appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          title: const Text('Teams'),
+        home: DefaultTabController(
+          length: 5,
+          child: SafeArea(
+            child: Scaffold(
+                  appBar: AppBar(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            title: const Text('Sports App'),
+            bottom: const TabBar(
+              indicatorColor: Colors.white,
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.black,
+              tabs: [Tab(text: 'Scores',), Tab(text: 'Standings',), Tab(text: 'Teams',), Tab(text: 'Players',), Tab(text: 'Favorite',)]),
+                  ),
+                  body: FutureBuilder(
+              future: _futureTeams,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return TabBarView(children: [
+                    //If you have to pass a parameter to your class (as I did for TeamsTab),
+                    //you will have to remove const!
+                    const ScoresTab(),
+                    const StandingsTab(),
+                    TeamsTab(teams: teams,),
+                    const PlayersTab(),
+                    const FavoritesTab(),
+                  ]);
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              }),
                 ),
-                body: FutureBuilder(
-            future: _futureTeams,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return ListView.builder(
-                    itemCount: 32,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(color: Theme.of(context).colorScheme.inversePrimary, borderRadius: BorderRadius.circular(12)),
-                          child: ListTile(
-                            title: Text(teams[index].abbreviation),
-                            leading: Container(
-                              width: 50,
-                              height: 50,
-                              child: Image(
-                                  image: NetworkImage(teams[index].logo,)),
-                            ),
-                            subtitle: Text(teams[index].name),
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          DisplayTeam(team: teams[index])));
-                            },
-                          ),
-                        ),
-                      );
-                    });
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            }),
-              ),
+          ),
         ));
   }
 }
