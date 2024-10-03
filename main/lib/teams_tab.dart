@@ -42,7 +42,7 @@ class _TeamsTab extends State<TeamsTab> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                DisplayTeam(team: widget.teams[index])));
+                                DisplayTeam(team: widget.teams[index], teams: widget.teams,)));
                   },
                 ),
               ),

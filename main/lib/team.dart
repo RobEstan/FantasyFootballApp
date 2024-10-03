@@ -54,7 +54,7 @@ class Team {
   Game? getLastGame() {
     Game? lastGame;
     for (var i = 0; i < games.length; i++) {
-      if (games[i].status == 'Finished') {
+      if (games[i].status == 'Finished' || games[i].status == 'Final/OT') {
         lastGame = games[i];
       } else {
         break;
