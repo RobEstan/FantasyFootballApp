@@ -56,6 +56,30 @@ class DisplayTeam extends StatelessWidget {
           Text('Coach: ${team.coach}'),
           Text('City: ${team.city}'),
           Text('Stadium: ${team.stadium}'),
+          Padding(padding: const EdgeInsets.all(4.0), child: Text('Last Game', style: Theme.of(context).textTheme.bodyLarge,),),
+          Builder(builder: (context) {
+            if (team.getLastGame() == null) {
+              return Text('The ${team.name} have not played a game yet.');
+            } else {
+              return Column(
+                children: [
+                  Text('${team.getLastGame()!.awayTeam}: ${team.getLastGame()!.awayScore}'),
+                  Text('${team.getLastGame()!.homeTeam}: ${team.getLastGame()!.homeScore}'),
+                ],
+              );
+            }
+          }),
+          Padding(padding: const EdgeInsets.all(4.0), child: Text('Next Game', style: Theme.of(context).textTheme.bodyLarge,),),
+          Builder(builder: (context) {
+            if(team.getNextGame() == null) {
+              return Text('The ${team.name} do not have any future games.');
+            } else {
+              return Column(children: [
+                Text(team.getNextGame()!.awayTeam!),
+                Text(team.getNextGame()!.homeTeam!),
+              ],);
+            }
+          })
         ],
       ),
     ));

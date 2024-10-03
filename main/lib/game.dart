@@ -1,5 +1,5 @@
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
+// import 'package:timezone/data/latest.dart' as tz;
+// import 'package:timezone/timezone.dart' as tz;
 
 class Game {
   final String stage;
@@ -7,11 +7,11 @@ class Game {
   final String date;
   final String time;
   final String status;
-  final String venue;
-  final String homeTeam;
-  final String awayTeam;
-  final String? homeScore;
-  final String? awayScore;
+  final String? venue;
+  final String? homeTeam;
+  final String? awayTeam;
+  final int? homeScore;
+  final int? awayScore;
 
   Game({
     required this.stage,
@@ -25,10 +25,4 @@ class Game {
     required this.homeScore,
     required this.awayScore,
   });
-
-  void convertTime(String date, String time) {
-    tz.initializeTimeZones();
-
-    
-  }
 }

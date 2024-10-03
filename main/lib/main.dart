@@ -5,6 +5,7 @@ import './favorites_tab.dart';
 import './players_tab.dart';
 import './scores_tab.dart';
 import './standings_tab.dart';
+import './game.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -87,10 +88,53 @@ class _MyApp extends State<MyApp> {
     }
   }
 
+  Future getGames() async {
+    var requestGames = http.Request(
+        'GET',
+        Uri.parse(
+            'https://v1.american-football.api-sports.io/games?league=1&season=2024'));
+    requestGames.headers.addAll(jakeHeaders);
+    http.StreamedResponse response = await requestGames.send();
+
+    if (response.statusCode == 200) {
+      var jsonData =
+          jsonDecode(await response.stream.bytesToString())['response'];
+      for (var i = 0; i < jsonData.length; i++) {
+        var currData = jsonData[i];
+        final game = Game(
+          stage: currData['game']['stage'],
+          week: currData['game']['week'],
+          date: currData['game']['date']['date'],
+          time: currData['game']['date']['time'],
+          status: currData['game']['status']['long'],
+          venue: currData['game']['venue']['name'],
+          homeTeam: currData['teams']['home']['name'],
+          awayTeam: currData['teams']['away']['name'],
+          homeScore: currData['scores']['home']['total'],
+          awayScore: currData['scores']['away']['total'],
+        );
+        var foundTeams = 0;
+        for(Team team in teams) {
+          if (team.name == game.homeTeam || team.name == game.awayTeam) {
+            team.games.add(game);
+            foundTeams++;
+          }
+
+          if (foundTeams >= 2) {
+            break;
+          }
+        }
+      }
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
   @override
   void initState() {
     _future = getTeams().then((_) {
       getStandings();
+      getGames();
     });
     super.initState();
   }

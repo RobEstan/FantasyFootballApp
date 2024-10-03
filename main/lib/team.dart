@@ -13,7 +13,7 @@ class Team {
   int? wins;
   int? losses;
   int? ties;
-  List<Game>? games;
+  List<Game> games = [];
 
 
   Team({
@@ -29,7 +29,6 @@ class Team {
     this.wins,
     this.losses,
     this.ties,
-    this.games,
   });
 
   void setDivision(String division) {
@@ -52,7 +51,27 @@ class Team {
     this.ties = ties;
   }
 
-  void setGames(List<Game> games) {
-    this.games = games;
+  Game? getLastGame() {
+    Game? lastGame;
+    for (var i = 0; i < games.length; i++) {
+      if (games[i].status == 'Finished') {
+        lastGame = games[i];
+      } else {
+        break;
+      }
+    }
+    return lastGame;
+  }
+
+  Game? getNextGame() {
+    Game? nextGame;
+    for (var i = 0; i < games.length; i++) {
+      if (games[i].status == 'Not Started') {
+        nextGame = games[i];
+        break;
+      }
+    }
+
+    return nextGame;
   }
 }
