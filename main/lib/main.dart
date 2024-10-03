@@ -21,10 +21,10 @@ class MyApp extends StatefulWidget {
 
 class _MyApp extends State<MyApp> {
   List<Team> teams = [];
-  late Future _futureTeams;
+  late Future _future;
+  final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
 
   Future getTeams() async {
-    var jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
 
     var requestTeams = http.Request(
         'GET',
@@ -55,9 +55,43 @@ class _MyApp extends State<MyApp> {
     }
   }
 
+  Future getStandings() async {
+    var requestStandings = http.Request(
+        'GET',
+        Uri.parse(
+            'https://v1.american-football.api-sports.io/standings?league=1&season=2024'));
+    requestStandings.headers.addAll(jakeHeaders);
+    http.StreamedResponse response = await requestStandings.send();
+
+    if (response.statusCode == 200) {
+      var jsonData =
+          jsonDecode(await response.stream.bytesToString())['response'];
+      for (var i = 0; i < jsonData.length; i++) {
+        var currJsonData = jsonData[i];
+        var currTeamName = currJsonData['team']['name'];
+        for (var x = 0; x < teams.length; x++) {
+          var currSearchName = teams[x].name;
+          if (currTeamName == currSearchName) {
+            Team foundTeam = teams[x];
+            foundTeam.setDivision(currJsonData['division']);
+            foundTeam.setDivPosition(currJsonData['position']);
+            foundTeam.setWins(currJsonData['won']);
+            foundTeam.setLosses(currJsonData['lost']);
+            foundTeam.setTies(currJsonData['ties']);
+            break;
+          }
+        }
+      }
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
   @override
   void initState() {
-    _futureTeams = getTeams();
+    _future = getTeams().then((_) {
+      getStandings();
+    });
     super.initState();
   }
 
@@ -79,7 +113,7 @@ class _MyApp extends State<MyApp> {
               tabs: [Tab(text: 'Scores',), Tab(text: 'Standings',), Tab(text: 'Teams',), Tab(text: 'Players',), Tab(text: 'Favorite',)]),
                   ),
                   body: FutureBuilder(
-              future: _futureTeams,
+              future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return TabBarView(children: [

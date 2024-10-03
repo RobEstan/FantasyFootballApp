@@ -25,13 +25,16 @@ class _TeamsTab extends State<TeamsTab> {
                     borderRadius: BorderRadius.circular(12)),
                 child: ListTile(
                   title: Text(widget.teams[index].abbreviation),
-                  leading: Container(
+                  leading: SizedBox(
                     width: 50,
                     height: 50,
-                    child: Image(
-                        image: NetworkImage(
-                      widget.teams[index].logo,
-                    )),
+                    child: Hero(
+                      tag: widget.teams[index].name,
+                      child: Image(
+                          image: NetworkImage(
+                        widget.teams[index].logo,
+                      )),
+                    ),
                   ),
                   subtitle: Text(widget.teams[index].name),
                   onTap: () {

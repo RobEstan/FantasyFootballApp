@@ -6,6 +6,12 @@ class Team {
   final String stadium;
   final String logo;
   final int id;
+  String? division;
+  int? divPosition;
+  int? wins;
+  int? losses;
+  int? ties;
+
 
   Team({
     required this.abbreviation,
@@ -15,5 +21,30 @@ class Team {
     required this.stadium,
     required this.logo,
     required this.id,
+    this.division,
+    this.divPosition,
+    this.wins,
+    this.losses,
+    this.ties,
   });
+
+  void setDivision(String division) {
+    this.division = division;
+  }
+
+  void setDivPosition(int position) {
+    divPosition = position;
+  }
+
+  void setWins(int wins) {
+    this.wins = wins;
+  }
+
+  void setLosses(int losses) {
+    this.losses = losses;
+  }
+
+  void setTies(int ties) {
+    this.ties = ties;
+  }
 }
