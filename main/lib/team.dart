@@ -1,3 +1,5 @@
+import './game.dart';
+
 class Team {
   final String abbreviation;
   final String name;
@@ -11,6 +13,7 @@ class Team {
   int? wins;
   int? losses;
   int? ties;
+  List<Game>? games;
 
 
   Team({
@@ -26,6 +29,7 @@ class Team {
     this.wins,
     this.losses,
     this.ties,
+    this.games,
   });
 
   void setDivision(String division) {
@@ -46,5 +50,9 @@ class Team {
 
   void setTies(int ties) {
     this.ties = ties;
+  }
+
+  void setGames(List<Game> games) {
+    this.games = games;
   }
 }
