@@ -56,12 +56,15 @@ class _FavoritesTab extends State<FavoritesTab> {
       var responseBodyGames = await gameResponse.stream.bytesToString();
       var gamesDecoded = jsonDecode(responseBodyGames);
       List<dynamic> games = gamesDecoded['response'];
+      print(games.length);
       for(var game in games){
         var status = game['game']['status']['long'];
         if(status == 'Finished'){
+          print('Finished game found');
           latestGame = game;
         }
         if (latestGame != null && status == 'Not Started') {
+            print('upcoming game found');
             upcomingGame = game;
             break; 
         }
