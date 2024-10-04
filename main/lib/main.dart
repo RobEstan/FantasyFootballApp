@@ -22,11 +22,11 @@ class MyApp extends StatefulWidget {
 
 class _MyApp extends State<MyApp> {
   List<Team> teams = [];
-  var standings = List.generate(8, (i) => List<Standing>.generate(4, (index) => Standing(name: "b", logo: "", position: 0, wins: 0, losses: 0, ties: 0, pointsFor: 0, pointsAgainst: 0, netPoints: -23, streak: ""), growable: false), growable: false);
   late Future _futureTeams;
 
   Future getTeams() async {
     var jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
+    var shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
 
     var requestTeams = http.Request(
         'GET',
@@ -57,52 +57,9 @@ class _MyApp extends State<MyApp> {
     }
   }
 
-  Future getStandings() async {
-    var shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
-
-    var requestTeams = http.Request(
-        'GET',
-        Uri.parse(
-            'https://v1.american-football.api-sports.io/standings?league=1&season=2024'));
-    requestTeams.headers.addAll(shivenHeaders);
-    http.StreamedResponse response = await requestTeams.send();
-
-    int index = 0;
-    if (response.statusCode == 200) {
-      var jsonData =
-          jsonDecode(await response.stream.bytesToString())['response'];
-
-
-      for (var i = 0; i < jsonData.length; i++) {
-        final teamStanding = Standing(
-          name: jsonData[i]['team']['name'],
-          logo: jsonData[i]['team']['logo'],
-          position: jsonData[i]['position'],
-          wins: jsonData[i]['won'],
-          losses: jsonData[i]['lost'],
-          ties: jsonData[i]['ties'],
-          pointsFor: jsonData[i]['points']['for'],
-          pointsAgainst: jsonData[i]['points']['against'],
-          netPoints: jsonData[i]['points']['difference'],
-          streak: jsonData[i]['streak'],
-        );
-        standings[(index/4).floor()][teamStanding.position - 1] = teamStanding;
-        index++;
-      }
-    } else {
-      print(response.reasonPhrase);
-    }
-  }
-
-
-  Future<void> fetchAllData() async {
-    await getTeams();
-    await getStandings();
-  }
-
   @override
   void initState() {
-    _futureTeams = fetchAllData();
+    _futureTeams = getTeams();
     super.initState();
   }
 
@@ -131,7 +88,7 @@ class _MyApp extends State<MyApp> {
                     //If you have to pass a parameter to your class (as I did for TeamsTab),
                     //you will have to remove const!
                     const ScoresTab(),
-                    StandingsTab(standings: standings),
+                    const StandingsTab(),
                     TeamsTab(teams: teams,),
                     const PlayersTab(),
                     const FavoritesTab(),
