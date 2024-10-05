@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:main/standing.dart';
 import 'package:main/team.dart';
 import 'package:main/teams_tab.dart';
 import './favorites_tab.dart';
@@ -26,6 +27,8 @@ class _MyApp extends State<MyApp> {
   final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
 
   Future getTeams() async {
+    var jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
+    var shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
 
     var requestTeams = http.Request(
         'GET',
