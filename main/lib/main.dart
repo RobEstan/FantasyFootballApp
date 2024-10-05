@@ -7,6 +7,7 @@ import './players_tab.dart';
 import './scores_tab.dart';
 import './standings_tab.dart';
 import './game.dart';
+import './player.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -23,14 +24,13 @@ class MyApp extends StatefulWidget {
 
 class _MyApp extends State<MyApp> {
   List<Team> teams = [];
+  List<Player> players = [];
   late Future _future;
   final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
+  final shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
+  final himnishHeaders = {'x-rapidapi-key': '30206e5d618f7492ca4322ff246895a0'};
 
   Future getTeams() async {
-    var jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
-    var shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
-    var himnishHeaders = {'x-rapidapi-key': '30206e5d618f7492ca4322ff246895a0'};
-
     var requestTeams = http.Request(
         'GET',
         Uri.parse(
@@ -134,11 +134,40 @@ class _MyApp extends State<MyApp> {
     }
   }
 
+  Future getSingularPlayer() async {
+    var requestSinglePlayer = http.Request(
+        'GET',
+        Uri.parse(
+            'https://v1.american-football.api-sports.io/players?season=2024&team=5'));
+    requestSinglePlayer.headers.addAll(jakeHeaders);
+    http.StreamedResponse response = await requestSinglePlayer.send();
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(await response.stream.bytesToString())['response'];
+      for (var i = 0; i < 5; i ++) {
+        var currPlayer = jsonData[i];
+        final Player player = Player(
+          id: currPlayer['id'],
+          name: currPlayer['name'],
+          age: currPlayer['age'],
+          height: currPlayer['height'],
+          weight: currPlayer['weight'],
+          position: currPlayer['position'],
+          number: currPlayer['number'],
+          image: currPlayer['image']);
+        players.add(player);
+      }
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
   @override
   void initState() {
     _future = getTeams().then((_) {
       getStandings();
       getGames();
+      getSingularPlayer();
     });
     super.initState();
   }
@@ -170,7 +199,7 @@ class _MyApp extends State<MyApp> {
                     const ScoresTab(),
                     const StandingsTab(),
                     TeamsTab(teams: teams,),
-                    const PlayersTab(),
+                    PlayersTab(players: players),
                     const FavoritesTab(),
                   ]);
                 } else {

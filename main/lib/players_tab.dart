@@ -15,7 +15,7 @@ class _PlayersTab extends State<PlayersTab> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(child: ListView.builder(
-      itemCount: 8,
+      itemCount: widget.players.length,
           itemBuilder: (context, index) {
             return Padding(
               padding: const EdgeInsets.all(8.0),

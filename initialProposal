@@ -42,7 +42,7 @@ Stretch Goals:
 Project Timeline:
     Milestone 1:
         - implementation of 3rd party api for the NFL
-        - all 3 tabs minimally implemented
+        - all 5 tabs minimally implemented
             *display the standings
             *display scores
             *display player info

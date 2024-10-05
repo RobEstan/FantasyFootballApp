@@ -5,7 +5,7 @@ class Player {
   final String height;
   final String weight;
   final String position;
-  final String number;
+  final int number;
   final String image;
 
   Player({
