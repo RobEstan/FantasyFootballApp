@@ -5,6 +5,7 @@ import './favorites_tab.dart';
 import './players_tab.dart';
 import './scores_tab.dart';
 import './standings_tab.dart';
+import './game.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -21,10 +22,10 @@ class MyApp extends StatefulWidget {
 
 class _MyApp extends State<MyApp> {
   List<Team> teams = [];
-  late Future _futureTeams;
+  late Future _future;
+  final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
 
   Future getTeams() async {
-    var jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
 
     var requestTeams = http.Request(
         'GET',
@@ -55,9 +56,86 @@ class _MyApp extends State<MyApp> {
     }
   }
 
+  Future getStandings() async {
+    var requestStandings = http.Request(
+        'GET',
+        Uri.parse(
+            'https://v1.american-football.api-sports.io/standings?league=1&season=2024'));
+    requestStandings.headers.addAll(jakeHeaders);
+    http.StreamedResponse response = await requestStandings.send();
+
+    if (response.statusCode == 200) {
+      var jsonData =
+          jsonDecode(await response.stream.bytesToString())['response'];
+      for (var i = 0; i < jsonData.length; i++) {
+        var currJsonData = jsonData[i];
+        var currTeamName = currJsonData['team']['name'];
+        for (var x = 0; x < teams.length; x++) {
+          var currSearchName = teams[x].name;
+          if (currTeamName == currSearchName) {
+            Team foundTeam = teams[x];
+            foundTeam.setDivision(currJsonData['division']);
+            foundTeam.setDivPosition(currJsonData['position']);
+            foundTeam.setWins(currJsonData['won']);
+            foundTeam.setLosses(currJsonData['lost']);
+            foundTeam.setTies(currJsonData['ties']);
+            break;
+          }
+        }
+      }
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  Future getGames() async {
+    var requestGames = http.Request(
+        'GET',
+        Uri.parse(
+            'https://v1.american-football.api-sports.io/games?league=1&season=2024'));
+    requestGames.headers.addAll(jakeHeaders);
+    http.StreamedResponse response = await requestGames.send();
+
+    if (response.statusCode == 200) {
+      var jsonData =
+          jsonDecode(await response.stream.bytesToString())['response'];
+      for (var i = 0; i < jsonData.length; i++) {
+        var currData = jsonData[i];
+        final game = Game(
+          stage: currData['game']['stage'],
+          week: currData['game']['week'],
+          date: currData['game']['date']['date'],
+          time: currData['game']['date']['time'],
+          status: currData['game']['status']['long'],
+          venue: currData['game']['venue']['name'],
+          homeTeam: currData['teams']['home']['name'],
+          awayTeam: currData['teams']['away']['name'],
+          homeScore: currData['scores']['home']['total'],
+          awayScore: currData['scores']['away']['total'],
+        );
+        var foundTeams = 0;
+        for(Team team in teams) {
+          if (team.name == game.homeTeam || team.name == game.awayTeam) {
+            team.games.add(game);
+            foundTeams++;
+          }
+
+          if (foundTeams >= 2) {
+            break;
+          }
+        }
+      }
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
   @override
   void initState() {
-    _futureTeams = getTeams();
+    _future = getTeams().then((_) {
+      getStandings();
+      getGames();
+    });
     super.initState();
   }
 
@@ -79,7 +157,7 @@ class _MyApp extends State<MyApp> {
               tabs: [Tab(text: 'Scores',), Tab(text: 'Standings',), Tab(text: 'Teams',), Tab(text: 'Players',), Tab(text: 'Favorite',)]),
                   ),
                   body: FutureBuilder(
-              future: _futureTeams,
+              future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return TabBarView(children: [
