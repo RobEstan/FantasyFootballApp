@@ -30,21 +30,13 @@ class _FavoritesTab extends State<FavoritesTab> {
   }
 
   String convertUtcTimeToEst(String utcTime) {
-    // Load the America/New_York timezone (EST/EDT)
     final estTimeZone = tz.getLocation('America/New_York');
-    
-    // Get the current date
     final now = DateTime.now().toUtc();
-
-    // Manually create a DateTime with the UTC time (from the API) and today's date
     final utcDateTime = DateTime.utc(now.year, now.month, now.day, 
-                                     int.parse(utcTime.split(':')[0]),  // hours from the API time
-                                     int.parse(utcTime.split(':')[1])); // minutes from the API time
+                                     int.parse(utcTime.split(':')[0]),  
+                                     int.parse(utcTime.split(':')[1])); 
 
-    // Convert UTC time to EST/EDT
     final estDateTime = tz.TZDateTime.from(utcDateTime, estTimeZone);
-
-    // Format EST time as desired (e.g., 1:00 PM)
     return '${estDateTime.hour > 12 ? estDateTime.hour - 12 : estDateTime.hour}:${estDateTime.minute.toString().padLeft(2, '0')} ${estDateTime.hour >= 12 ? 'PM' : 'AM'}';
   }
   
