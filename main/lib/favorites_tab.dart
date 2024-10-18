@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import './team.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import './game.dart';
 
 class FavoritesTab extends StatefulWidget {
-  const FavoritesTab({super.key});
+  final List<Team> teams;
+  final int favoriteTeamId;
+  const FavoritesTab({super.key, required this.teams, required this.favoriteTeamId});
 
   @override
   State<FavoritesTab> createState() => _FavoritesTab();
@@ -16,11 +21,34 @@ class _FavoritesTab extends State<FavoritesTab> {
   Game? upcomingGame;
   Map<String, dynamic>? teamInfo;
 
+
   @override
   void initState() {
     super.initState();
     fetchTeamData();
+    tz.initializeTimeZones();
   }
+
+  String convertUtcTimeToEst(String utcTime) {
+    // Load the America/New_York timezone (EST/EDT)
+    final estTimeZone = tz.getLocation('America/New_York');
+    
+    // Get the current date
+    final now = DateTime.now().toUtc();
+
+    // Manually create a DateTime with the UTC time (from the API) and today's date
+    final utcDateTime = DateTime.utc(now.year, now.month, now.day, 
+                                     int.parse(utcTime.split(':')[0]),  // hours from the API time
+                                     int.parse(utcTime.split(':')[1])); // minutes from the API time
+
+    // Convert UTC time to EST/EDT
+    final estDateTime = tz.TZDateTime.from(utcDateTime, estTimeZone);
+
+    // Format EST time as desired (e.g., 1:00 PM)
+    return '${estDateTime.hour > 12 ? estDateTime.hour - 12 : estDateTime.hour}:${estDateTime.minute.toString().padLeft(2, '0')} ${estDateTime.hour >= 12 ? 'PM' : 'AM'}';
+  }
+  
+  
 
   Future<void> fetchTeamData() async {
     var himnishHeaders = {
@@ -103,8 +131,13 @@ class _FavoritesTab extends State<FavoritesTab> {
     return game.homeTeam == teamName ? game.awayTeam! : game.homeTeam!;
   }
 
+ 
   @override
   Widget build(BuildContext context) {
+    final favoriteTeam = widget.teams.firstWhere(
+      (team) => team.id == widget.favoriteTeamId,
+    );
+
     return teamInfo == null
         ? const Center(child: CircularProgressIndicator())
         : Padding(
@@ -112,14 +145,50 @@ class _FavoritesTab extends State<FavoritesTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Favorite Team: ${teamInfo!['name']}',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    if (favoriteTeam != null)
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          image: DecorationImage(
+                            image: NetworkImage(favoriteTeam.logo),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 16),
+                    Text(
+                      'Favorite Team: ${teamInfo!['name']}',
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 Text('Coach: ${teamInfo!['coach'] ?? 'N/A'}'),
                 Text('Owner: ${teamInfo!['owner'] ?? 'N/A'}'),
                 Text('Stadium: ${teamInfo!['stadium'] ?? 'N/A'}'),
+                const SizedBox(height: 20),
+                if (favoriteTeam != null) ...[
+                  Text(
+                    'Division: ${favoriteTeam.division ?? 'N/A'}',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Position: ${favoriteTeam.divPosition ?? 'N/A'}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                if (favoriteTeam != null) ...[
+                  Text(
+                    'Record: W ${favoriteTeam.wins ?? 0} - L ${favoriteTeam.losses ?? 0} - T ${favoriteTeam.ties ?? 0}',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
                 const SizedBox(height: 20),
                 const Text('Latest Game', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
@@ -130,6 +199,7 @@ class _FavoritesTab extends State<FavoritesTab> {
                           Text('Opponent: ${getOpponentName(latestGame!, teamInfo!['name'])}'),
                           Text('Score: ${latestGame!.homeScore} - ${latestGame!.awayScore}'),
                           Text('Date: ${latestGame!.date}'),
+                          Text('Time: ${convertUtcTimeToEst(latestGame!.time)}'),
                           Text('Venue: ${latestGame!.venue ?? 'N/A'}'),
                         ],
                       )
@@ -143,6 +213,7 @@ class _FavoritesTab extends State<FavoritesTab> {
                         children: [
                           Text('Opponent: ${getOpponentName(upcomingGame!, teamInfo!['name'])}'),
                           Text('Date: ${upcomingGame!.date}'),
+                          Text('Time: ${convertUtcTimeToEst(upcomingGame!.time)}'),
                           Text('Venue: ${upcomingGame!.venue ?? 'N/A'}'),
                         ],
                       )
@@ -151,4 +222,5 @@ class _FavoritesTab extends State<FavoritesTab> {
             ),
           );
   }
+
 }
