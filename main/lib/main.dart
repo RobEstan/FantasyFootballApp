@@ -224,7 +224,7 @@ class _MyApp extends State<MyApp> {
                       teams: teams,
                     ),
                     PlayersTab(players: players),
-                    const FavoritesTab(),
+                    FavoritesTab(teams: teams, favoriteTeamId: 4),
                   ]);
                 } else {
                   return const Center(
