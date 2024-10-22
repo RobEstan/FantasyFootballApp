@@ -14,6 +14,7 @@ class Team {
   int? losses;
   int? ties;
   List<Game> games = [];
+  bool favorited = false;
 
 
   Team({
@@ -73,5 +74,9 @@ class Team {
     }
 
     return nextGame;
+  }
+
+  void updateFavorite() {
+    favorited = !favorited;
   }
 }

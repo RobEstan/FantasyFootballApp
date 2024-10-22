@@ -23,27 +23,37 @@ class _TeamsTab extends State<TeamsTab> {
                 decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.inversePrimary,
                     borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  title: Text(widget.teams[index].abbreviation),
-                  leading: SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: Hero(
-                      tag: widget.teams[index].name,
-                      child: Image(
-                          image: NetworkImage(
-                        widget.teams[index].logo,
-                      )),
+                child: Row(
+                  children: [
+                    ListTile(leading: widget.teams[index].favorited ? const Icon(Icons.star, color: Colors.yellow,) : const Icon(Icons.star_border),
+                    onTap: () {
+                      setState(() {
+                        widget.teams[index].updateFavorite();
+                      });
+                    },),
+                    ListTile(
+                      title: Text(widget.teams[index].abbreviation),
+                      leading: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Hero(
+                          tag: widget.teams[index].name,
+                          child: Image(
+                              image: NetworkImage(
+                            widget.teams[index].logo,
+                          )),
+                        ),
+                      ),
+                      subtitle: Text(widget.teams[index].name),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    DisplayTeam(team: widget.teams[index], teams: widget.teams,)));
+                      },
                     ),
-                  ),
-                  subtitle: Text(widget.teams[index].name),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                DisplayTeam(team: widget.teams[index], teams: widget.teams,)));
-                  },
+                  ],
                 ),
               ),
             );
