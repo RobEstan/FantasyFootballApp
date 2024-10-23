@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:main/display_team.dart';
 import 'dart:convert';
 import './team.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -15,11 +16,12 @@ class FavoritesTab extends StatefulWidget {
   State<FavoritesTab> createState() => _FavoritesTab();
 }
 
-class _FavoritesTab extends State<FavoritesTab> {
+class _FavoritesTab extends State<FavoritesTab> with TickerProviderStateMixin {
   final int teamID = 4;
   Game? latestGame;
   Game? upcomingGame;
   Map<String, dynamic>? teamInfo;
+  late final TabController tabController;
 
 
   @override
@@ -27,6 +29,7 @@ class _FavoritesTab extends State<FavoritesTab> {
     super.initState();
     fetchTeamData();
     tz.initializeTimeZones();
+    tabController = TabController(length: 2, vsync: this);
   }
 
   String convertUtcTimeToEst(String utcTime) {
@@ -129,90 +132,290 @@ class _FavoritesTab extends State<FavoritesTab> {
     final favoriteTeam = widget.teams.firstWhere(
       (team) => team.id == widget.favoriteTeamId,
     );
+    const placeholder = null;
 
     return teamInfo == null
-        ? const Center(child: CircularProgressIndicator())
-        : Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : Column(
+            children: [
+              TabBar.secondary(
+                controller: tabController,
+                tabs: [
+                  Tab(
+                    text: widget.teams[3].name,
+                  ),
+                  Tab(
+                    text: widget.teams[4].name,
+                  )
+                ],
+              ),
+              Expanded(
+                  child: TabBarView(controller: tabController, children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (favoriteTeam != null)
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          image: DecorationImage(
-                            image: NetworkImage(favoriteTeam.logo),
-                            fit: BoxFit.cover,
+                    Row(
+                      children: [
+                        if (favoriteTeam != null)
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              image: DecorationImage(
+                                image: NetworkImage(favoriteTeam.logo),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
+                        const SizedBox(width: 16),
+                        Text(
+                          'Favorite Team: ${teamInfo!['name']}',
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    const SizedBox(width: 16),
-                    Text(
-                      'Favorite Team: ${teamInfo!['name']}',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ],
                     ),
+                    const SizedBox(height: 10),
+                    Text('Coach: ${teamInfo!['coach'] ?? 'N/A'}'),
+                    Text('Owner: ${teamInfo!['owner'] ?? 'N/A'}'),
+                    Text('Stadium: ${teamInfo!['stadium'] ?? 'N/A'}'),
+                    const SizedBox(height: 20),
+                    if (favoriteTeam != null) ...[
+                      Text(
+                        'Division: ${favoriteTeam.division ?? 'N/A'}',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'Position: ${favoriteTeam.divPosition ?? 'N/A'}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                    if (favoriteTeam != null) ...[
+                      Text(
+                        'Record: W ${favoriteTeam.wins ?? 0} - L ${favoriteTeam.losses ?? 0} - T ${favoriteTeam.ties ?? 0}',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                    const Text('Latest Game',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    latestGame != null
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  'Opponent: ${getOpponentName(latestGame!, teamInfo!['name'])}'),
+                              Text(
+                                  'Score: ${latestGame!.homeScore} - ${latestGame!.awayScore}'),
+                              Text('Date: ${latestGame!.date}'),
+                              Text(
+                                  'Time: ${convertUtcTimeToEst(latestGame!.time)}'),
+                              Text('Venue: ${latestGame!.venue ?? 'N/A'}'),
+                            ],
+                          )
+                        : const Text('No latest game data available.'),
+                    const SizedBox(height: 20),
+                    const Text('Upcoming Game',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    upcomingGame != null
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  'Opponent: ${getOpponentName(upcomingGame!, teamInfo!['name'])}'),
+                              Text('Date: ${upcomingGame!.date}'),
+                              Text(
+                                  'Time: ${convertUtcTimeToEst(upcomingGame!.time)}'),
+                              Text('Venue: ${upcomingGame!.venue ?? 'N/A'}'),
+                            ],
+                          )
+                        : const Text('No upcoming game data available.'),
                   ],
                 ),
-                const SizedBox(height: 10),
-                Text('Coach: ${teamInfo!['coach'] ?? 'N/A'}'),
-                Text('Owner: ${teamInfo!['owner'] ?? 'N/A'}'),
-                Text('Stadium: ${teamInfo!['stadium'] ?? 'N/A'}'),
-                const SizedBox(height: 20),
-                if (favoriteTeam != null) ...[
-                  Text(
-                    'Division: ${favoriteTeam.division ?? 'N/A'}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'Position: ${favoriteTeam.divPosition ?? 'N/A'}',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-                const SizedBox(height: 10),
-                if (favoriteTeam != null) ...[
-                  Text(
-                    'Record: W ${favoriteTeam.wins ?? 0} - L ${favoriteTeam.losses ?? 0} - T ${favoriteTeam.ties ?? 0}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ],
-                const SizedBox(height: 20),
-                const Text('Latest Game', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                latestGame != null
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          Text('Opponent: ${getOpponentName(latestGame!, teamInfo!['name'])}'),
-                          Text('Score: ${latestGame!.homeScore} - ${latestGame!.awayScore}'),
-                          Text('Date: ${latestGame!.date}'),
-                          Text('Time: ${convertUtcTimeToEst(latestGame!.time)}'),
-                          Text('Venue: ${latestGame!.venue ?? 'N/A'}'),
+                          if (favoriteTeam != null)
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                  image: NetworkImage(widget.teams[4].logo),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          const SizedBox(width: 16),
+                          Text(
+                            'Favorite Team: ${widget.teams[4].name}',
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
                         ],
-                      )
-                    : const Text('No latest game data available.'),
-                const SizedBox(height: 20),
-                const Text('Upcoming Game', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                upcomingGame != null
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Opponent: ${getOpponentName(upcomingGame!, teamInfo!['name'])}'),
-                          Text('Date: ${upcomingGame!.date}'),
-                          Text('Time: ${convertUtcTimeToEst(upcomingGame!.time)}'),
-                          Text('Venue: ${upcomingGame!.venue ?? 'N/A'}'),
-                        ],
-                      )
-                    : const Text('No upcoming game data available.'),
-              ],
-            ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text('Coach: ${widget.teams[4].coach}'),
+                      Text('Owner: ${teamInfo!['owne'] ?? 'N/A'}'),
+                      Text('Stadium: ${widget.teams[4].stadium}'),
+                      const SizedBox(height: 20),
+                      if (favoriteTeam != null) ...[
+                        Text(
+                          'Division: ${widget.teams[4].division}',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Position: ${widget.teams[4].divPosition}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                      const SizedBox(height: 10),
+                      if (favoriteTeam != null) ...[
+                        Text(
+                          'Record: W ${widget.teams[4].wins} - L ${widget.teams[4].losses} - T ${widget.teams[4].ties}',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                      const Text('Latest Game', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      placeholder != null
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Opponent: ${getOpponentName(latestGame!, teamInfo!['name'])}'),
+                                Text('Score: ${latestGame!.homeScore} - ${latestGame!.awayScore}'),
+                                Text('Date: ${latestGame!.date}'),
+                                Text('Time: ${convertUtcTimeToEst(latestGame!.time)}'),
+                                Text('Venue: ${latestGame!.venue ?? 'N/A'}'),
+                              ],
+                            )
+                          : const Text('No latest game data available.'),
+                      const SizedBox(height: 20),
+                      const Text('Upcoming Game', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      placeholder != null
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Opponent: ${getOpponentName(upcomingGame!, teamInfo!['name'])}'),
+                                Text('Date: ${upcomingGame!.date}'),
+                                Text('Time: ${convertUtcTimeToEst(upcomingGame!.time)}'),
+                                Text('Venue: ${upcomingGame!.venue ?? 'N/A'}'),
+                              ],
+                            )
+                          : const Text('No upcoming game data available.'),
+                    ],
+                  ),
+              ])),
+            ],
           );
+    
+    // return teamInfo == null
+    //     ? const Center(child: CircularProgressIndicator())
+    //     : Column(
+    //       children: [
+    //         TabBar.secondary(controller: TabController(length: 2, vsync: this), tabs: const [Tab(text: 'Test 1',), Tab(text: 'Test 2',)]),
+    //         Padding(
+    //             padding: const EdgeInsets.all(16.0),
+    //             child: TabBarView(
+    //               children: [Column(
+    //                 crossAxisAlignment: CrossAxisAlignment.start,
+    //                 children: [
+    //                   Row(
+    //                     children: [
+    //                       if (favoriteTeam != null)
+    //                         Container(
+    //                           width: 60,
+    //                           height: 60,
+    //                           decoration: BoxDecoration(
+    //                             borderRadius: BorderRadius.circular(8),
+    //                             image: DecorationImage(
+    //                               image: NetworkImage(favoriteTeam.logo),
+    //                               fit: BoxFit.cover,
+    //                             ),
+    //                           ),
+    //                         ),
+    //                       const SizedBox(width: 16),
+    //                       Text(
+    //                         'Favorite Team: ${teamInfo!['name']}',
+    //                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    //                       ),
+    //                     ],
+    //                   ),
+    //                   const SizedBox(height: 10),
+    //                   Text('Coach: ${teamInfo!['coach'] ?? 'N/A'}'),
+    //                   Text('Owner: ${teamInfo!['owner'] ?? 'N/A'}'),
+    //                   Text('Stadium: ${teamInfo!['stadium'] ?? 'N/A'}'),
+    //                   const SizedBox(height: 20),
+    //                   if (favoriteTeam != null) ...[
+    //                     Text(
+    //                       'Division: ${favoriteTeam.division ?? 'N/A'}',
+    //                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    //                     ),
+    //                     const SizedBox(height: 5),
+    //                     Text(
+    //                       'Position: ${favoriteTeam.divPosition ?? 'N/A'}',
+    //                       style: const TextStyle(fontSize: 16),
+    //                     ),
+    //                   ],
+    //                   const SizedBox(height: 10),
+    //                   if (favoriteTeam != null) ...[
+    //                     Text(
+    //                       'Record: W ${favoriteTeam.wins ?? 0} - L ${favoriteTeam.losses ?? 0} - T ${favoriteTeam.ties ?? 0}',
+    //                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    //                     ),
+    //                   ],
+    //                   const SizedBox(height: 20),
+    //                   const Text('Latest Game', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+    //                   const SizedBox(height: 10),
+    //                   latestGame != null
+    //                       ? Column(
+    //                           crossAxisAlignment: CrossAxisAlignment.start,
+    //                           children: [
+    //                             Text('Opponent: ${getOpponentName(latestGame!, teamInfo!['name'])}'),
+    //                             Text('Score: ${latestGame!.homeScore} - ${latestGame!.awayScore}'),
+    //                             Text('Date: ${latestGame!.date}'),
+    //                             Text('Time: ${convertUtcTimeToEst(latestGame!.time)}'),
+    //                             Text('Venue: ${latestGame!.venue ?? 'N/A'}'),
+    //                           ],
+    //                         )
+    //                       : const Text('No latest game data available.'),
+    //                   const SizedBox(height: 20),
+    //                   const Text('Upcoming Game', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+    //                   const SizedBox(height: 10),
+    //                   upcomingGame != null
+    //                       ? Column(
+    //                           crossAxisAlignment: CrossAxisAlignment.start,
+    //                           children: [
+    //                             Text('Opponent: ${getOpponentName(upcomingGame!, teamInfo!['name'])}'),
+    //                             Text('Date: ${upcomingGame!.date}'),
+    //                             Text('Time: ${convertUtcTimeToEst(upcomingGame!.time)}'),
+    //                             Text('Venue: ${upcomingGame!.venue ?? 'N/A'}'),
+    //                           ],
+    //                         )
+    //                       : const Text('No upcoming game data available.'),
+    //                 ],
+    //               ),
+    //               const Text('Testing'),]
+    //             ),
+    //           ),
+    //       ],
+    //     );
   }
 
 }
