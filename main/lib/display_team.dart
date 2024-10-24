@@ -32,24 +32,24 @@ class _DisplayTeam extends State<DisplayTeam> {
     return Consumer<FavoritesModel>(builder: (context, model, child) =>
       SafeArea(
           child: Scaffold(
-        // appBar: AppBar(
-        //   title: Text(widget.team.name),
-        //   backgroundColor: Theme.of(context).colorScheme.primary,
-        //   actions: [
-        //     IconButton(
-        //         onPressed: () {
-        //           model.editFavTeams(widget.team);
-        //         },
-        //         icon: model.isFavTeam(widget.team)
-        //             ? const Icon(
-        //                 Icons.star,
-        //                 color: Colors.yellow,
-        //               )
-        //             : const Icon(Icons.star_border),
-        //         iconSize: 35.0,
-        //       ),
-        //   ],
-        // ),
+        appBar: AppBar(
+          title: Text(widget.team.name),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  model.editFavTeams(widget.team);
+                },
+                icon: model.isFavTeam(widget.team)
+                    ? const Icon(
+                        Icons.star,
+                        color: Colors.yellow,
+                      )
+                    : const Icon(Icons.star_border),
+                iconSize: 35.0,
+              ),
+          ],
+        ),
         body: Column(
           children: [
             Row(
