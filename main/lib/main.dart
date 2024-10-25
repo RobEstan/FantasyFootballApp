@@ -25,17 +25,19 @@ class MyApp extends StatefulWidget {
 class _MyApp extends State<MyApp> {
   List<Team> teams = [];
   List<Player> players = [];
+  List<Game> games = [];
   late Future _future;
   final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
   final shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
   final himnishHeaders = {'x-rapidapi-key': '30206e5d618f7492ca4322ff246895a0'};
+  final samHeaders = {'x-rapidapi-key': 'd8074a4ae693a14c977d3eec4b4f9c78'};
 
   Future getTeams() async {
     var requestTeams = http.Request(
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/teams?league=1&season=2024'));
-    requestTeams.headers.addAll(jakeHeaders);
+    requestTeams.headers.addAll(samHeaders);
     http.StreamedResponse response = await requestTeams.send();
 
     if (response.statusCode == 200) {
@@ -65,7 +67,7 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/standings?league=1&season=2024'));
-    requestStandings.headers.addAll(jakeHeaders);
+    requestStandings.headers.addAll(samHeaders);
     http.StreamedResponse response = await requestStandings.send();
 
     if (response.statusCode == 200) {
@@ -97,7 +99,7 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/games?league=1&season=2024'));
-    requestGames.headers.addAll(jakeHeaders);
+    requestGames.headers.addAll(samHeaders);
     http.StreamedResponse response = await requestGames.send();
 
     if (response.statusCode == 200) {
@@ -128,6 +130,7 @@ class _MyApp extends State<MyApp> {
             break;
           }
         }
+        games.add(game);
       }
     } else {
       print(response.reasonPhrase);
@@ -139,7 +142,7 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/players?season=2024&team=5'));
-    requestSinglePlayer.headers.addAll(jakeHeaders);
+    requestSinglePlayer.headers.addAll(samHeaders);
     http.StreamedResponse response = await requestSinglePlayer.send();
 
     if (response.statusCode == 200) {
@@ -164,10 +167,10 @@ class _MyApp extends State<MyApp> {
 
   @override
   void initState() {
-    _future = getTeams().then((_) {
-      getStandings();
-      getGames();
-      getSingularPlayer();
+    _future = getTeams().then((_) async {
+      await getStandings();
+      await getGames();
+      await getSingularPlayer();
     });
     super.initState();
   }
@@ -196,7 +199,7 @@ class _MyApp extends State<MyApp> {
                   return TabBarView(children: [
                     //If you have to pass a parameter to your class (as I did for TeamsTab),
                     //you will have to remove const!
-                    const ScoresTab(),
+                    ScoresTab(teams: teams, games: games),
                     const StandingsTab(),
                     TeamsTab(teams: teams,),
                     PlayersTab(players: players),
