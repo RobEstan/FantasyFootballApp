@@ -43,7 +43,7 @@ class _TeamsTab extends State<TeamsTab> {
                                     Icons.star,
                                     color: Colors.yellow,
                                   )
-                                : const Icon(Icons.star_border),
+                                : const Icon(Icons.star_border, color: Colors.black,),
                             iconSize: 35.0,
                           ),
                         ),
@@ -68,6 +68,7 @@ class _TeamsTab extends State<TeamsTab> {
                               builder: (context) => DisplayTeam(
                                     team: widget.teams[index],
                                     teams: widget.teams,
+                                    showAppBar: true,
                                   )));
                     },
                   ),

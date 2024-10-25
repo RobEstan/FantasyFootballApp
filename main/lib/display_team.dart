@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import './favorites_model.dart';
 import './team.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class DisplayTeam extends StatefulWidget {
   const DisplayTeam({
     super.key,
     required this.team,
     required this.teams,
+    required this.showAppBar,
   });
 
   final Team team;
   final List<Team> teams;
+  final bool showAppBar;
 
   @override
   State<DisplayTeam> createState() => _DisplayTeam();
@@ -28,11 +32,33 @@ class _DisplayTeam extends State<DisplayTeam> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    tz.initializeTimeZones();
+  }
+
+  String convertUtcTimeToEst(String utcTime) {
+    final estTimeZone = tz.getLocation('America/New_York');
+    final now = DateTime.now().toUtc();
+    final utcDateTime = DateTime.utc(now.year, now.month, now.day, 
+                                     int.parse(utcTime.split(':')[0]),  
+                                     int.parse(utcTime.split(':')[1])); 
+
+    final estDateTime = tz.TZDateTime.from(utcDateTime, estTimeZone);
+    return '${estDateTime.hour > 12 ? estDateTime.hour - 12 : estDateTime.hour}:${estDateTime.minute.toString().padLeft(2, '0')} ${estDateTime.hour >= 12 ? 'PM' : 'AM'}';
+  }
+
+  String convertDate(String date) {
+    List<String> dateAsList = date.split('-');
+    return '${dateAsList[1]}/${dateAsList[2]}';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<FavoritesModel>(builder: (context, model, child) =>
       SafeArea(
           child: Scaffold(
-        appBar: AppBar(
+        appBar: widget.showAppBar ? AppBar(
           title: Text(widget.team.name),
           backgroundColor: Theme.of(context).colorScheme.primary,
           actions: [
@@ -45,11 +71,11 @@ class _DisplayTeam extends State<DisplayTeam> {
                         Icons.star,
                         color: Colors.yellow,
                       )
-                    : const Icon(Icons.star_border),
+                    : const Icon(Icons.star_border, color: Colors.black,),
                 iconSize: 35.0,
               ),
           ],
-        ),
+        ) : null,
         body: Column(
           children: [
             Row(
@@ -227,7 +253,7 @@ class _DisplayTeam extends State<DisplayTeam> {
                     return Column(
                       children: [
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Row(
                               children: [
@@ -258,10 +284,15 @@ class _DisplayTeam extends State<DisplayTeam> {
                                         Theme.of(context).textTheme.bodyLarge),
                               ],
                             ),
+                            const Spacer(),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0,25.0,20.0,0),
+                              child: Text(convertDate(widget.team.getNextGame()!.date)),
+                            ),
                           ],
                         ),
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Row(
                               children: [
@@ -292,6 +323,11 @@ class _DisplayTeam extends State<DisplayTeam> {
                                         Theme.of(context).textTheme.bodyLarge),
                               ],
                             ),
+                            const Spacer(),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0,0,12.0,25.0),
+                              child: Text(convertUtcTimeToEst(widget.team.getNextGame()!.time)),
+                            )
                           ],
                         ),
                       ],

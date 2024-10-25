@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:main/favorites_model.dart';
-import 'package:main/standing.dart';
 import 'package:main/team.dart';
 import 'package:main/teams_tab.dart';
 import 'package:provider/provider.dart';
@@ -193,21 +192,28 @@ class _MyApp extends State<MyApp> {
                 indicatorColor: Colors.white,
                 labelColor: Colors.white,
                 unselectedLabelColor: Colors.black,
+                indicatorPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
                 tabs: [
                   Tab(
                     text: 'Scores',
+                    icon: Icon(Icons.scoreboard_outlined, size: 30,),
                   ),
                   Tab(
-                    text: 'Standings',
+                    text: ('Standings'),
+                    icon: Icon(Icons.list, size: 30,),
                   ),
                   Tab(
                     text: 'Teams',
+                    icon: Icon(Icons.sports_football_outlined, size: 30,),
                   ),
                   Tab(
                     text: 'Players',
+                    icon: Icon(Icons.person_outlined, size: 30,),
                   ),
                   Tab(
-                    text: 'Favorite',
+                    text: 'Favorites',
+                    icon: Icon(Icons.star, size: 30,),
                   )
                 ]),
           ),
@@ -215,6 +221,7 @@ class _MyApp extends State<MyApp> {
               future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
+                  Provider.of<FavoritesModel>(context, listen: false).favoriteTeams = [teams[3], teams[4]];
                   return TabBarView(children: [
                     //If you have to pass a parameter to your class (as I did for TeamsTab),
                     //you will have to remove const!
