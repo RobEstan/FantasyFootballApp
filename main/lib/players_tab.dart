@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:main/display_player.dart';
 import 'player.dart';
 
 class PlayersTab extends StatefulWidget{
@@ -15,7 +16,7 @@ class _PlayersTab extends State<PlayersTab> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(child: ListView.builder(
-      itemCount: widget.players.length,
+      itemCount: 8,
           itemBuilder: (context, index) {
             return Padding(
               padding: const EdgeInsets.all(8.0),
@@ -33,13 +34,13 @@ class _PlayersTab extends State<PlayersTab> {
                     )),
                   ),
                   subtitle: Text(widget.players[index].name),
-                  //onTap: () {
-                  //  Navigator.push(
-                  //      context,
-                  //      MaterialPageRoute(
-                  //          builder: (context) =>
-                  //              DisplayTeam(team: widget.teams[index])));
-                  //},
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                           builder: (context) =>
+                                DisplayPlayer(player: widget.players[index])));
+                  },
                 ),
               ),
             );

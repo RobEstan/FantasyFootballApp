@@ -144,7 +144,7 @@ class _MyApp extends State<MyApp> {
 
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(await response.stream.bytesToString())['response'];
-      for (var i = 0; i < 5; i ++) {
+      for (var i = 0; i < 8; i ++) {
         var currPlayer = jsonData[i];
         final Player player = Player(
           id: currPlayer['id'],
