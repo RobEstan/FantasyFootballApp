@@ -41,7 +41,7 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/teams?league=1&season=2024'));
-    requestTeams.headers.addAll(samHeaders);
+    requestTeams.headers.addAll(jakeHeaders);
     http.StreamedResponse response = await requestTeams.send();
 
     if (response.statusCode == 200) {
@@ -71,7 +71,7 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/standings?league=1&season=2024'));
-    requestStandings.headers.addAll(samHeaders);
+    requestStandings.headers.addAll(jakeHeaders);
     http.StreamedResponse response = await requestStandings.send();
 
     if (response.statusCode == 200) {
@@ -103,7 +103,7 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/games?league=1&season=2024'));
-    requestGames.headers.addAll(samHeaders);
+    requestGames.headers.addAll(jakeHeaders);
     http.StreamedResponse response = await requestGames.send();
 
     if (response.statusCode == 200) {
@@ -146,13 +146,13 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/players?season=2024&team=5'));
-    requestSinglePlayer.headers.addAll(samHeaders);
+    requestSinglePlayer.headers.addAll(jakeHeaders);
     http.StreamedResponse response = await requestSinglePlayer.send();
 
     if (response.statusCode == 200) {
       var jsonData =
           jsonDecode(await response.stream.bytesToString())['response'];
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < 8; i++) {
         var currPlayer = jsonData[i];
         final Player player = Player(
             id: currPlayer['id'],
