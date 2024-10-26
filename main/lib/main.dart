@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:main/standing.dart';
+import 'package:main/favorites_model.dart';
 import 'package:main/team.dart';
 import 'package:main/teams_tab.dart';
+import 'package:provider/provider.dart';
 import './favorites_tab.dart';
 import './players_tab.dart';
 import './scores_tab.dart';
@@ -12,7 +13,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => FavoritesModel(),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -118,7 +122,7 @@ class _MyApp extends State<MyApp> {
           awayScore: currData['scores']['away']['total'],
         );
         var foundTeams = 0;
-        for(Team team in teams) {
+        for (Team team in teams) {
           if (team.name == game.homeTeam || team.name == game.awayTeam) {
             team.games.add(game);
             foundTeams++;
@@ -143,18 +147,19 @@ class _MyApp extends State<MyApp> {
     http.StreamedResponse response = await requestSinglePlayer.send();
 
     if (response.statusCode == 200) {
-      var jsonData = jsonDecode(await response.stream.bytesToString())['response'];
-      for (var i = 0; i < 8; i ++) {
+      var jsonData =
+          jsonDecode(await response.stream.bytesToString())['response'];
+      for (var i = 0; i < 5; i++) {
         var currPlayer = jsonData[i];
         final Player player = Player(
-          id: currPlayer['id'],
-          name: currPlayer['name'],
-          age: currPlayer['age'],
-          height: currPlayer['height'],
-          weight: currPlayer['weight'],
-          position: currPlayer['position'],
-          number: currPlayer['number'],
-          image: currPlayer['image']);
+            id: currPlayer['id'],
+            name: currPlayer['name'],
+            age: currPlayer['age'],
+            height: currPlayer['height'],
+            weight: currPlayer['weight'],
+            position: currPlayer['position'],
+            number: currPlayer['number'],
+            image: currPlayer['image']);
         players.add(player);
       }
     } else {
@@ -177,30 +182,56 @@ class _MyApp extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: DefaultTabController(
-          length: 5,
-          child: SafeArea(
-            child: Scaffold(
-                  appBar: AppBar(
+      length: 5,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.primary,
             title: const Text('Sports App'),
             bottom: const TabBar(
-              indicatorColor: Colors.white,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.black,
-              tabs: [Tab(text: 'Scores',), Tab(text: 'Standings',), Tab(text: 'Teams',), Tab(text: 'Players',), Tab(text: 'Favorite',)]),
+                indicatorColor: Colors.white,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black,
+                indicatorPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                tabs: [
+                  Tab(
+                    text: 'Scores',
+                    icon: Icon(Icons.scoreboard_outlined, size: 30,),
                   ),
-                  body: FutureBuilder(
+                  Tab(
+                    text: ('Standings'),
+                    icon: Icon(Icons.list, size: 30,),
+                  ),
+                  Tab(
+                    text: 'Teams',
+                    icon: Icon(Icons.sports_football_outlined, size: 30,),
+                  ),
+                  Tab(
+                    text: 'Players',
+                    icon: Icon(Icons.person_outlined, size: 30,),
+                  ),
+                  Tab(
+                    text: 'Favorites',
+                    icon: Icon(Icons.star, size: 30,),
+                  )
+                ]),
+          ),
+          body: FutureBuilder(
               future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
+                  Provider.of<FavoritesModel>(context, listen: false).favoriteTeams = [teams[3], teams[4]];
                   return TabBarView(children: [
                     //If you have to pass a parameter to your class (as I did for TeamsTab),
                     //you will have to remove const!
                     const ScoresTab(),
                     const StandingsTab(),
-                    TeamsTab(teams: teams,),
+                    TeamsTab(
+                      teams: teams,
+                    ),
                     PlayersTab(players: players),
-                    const FavoritesTab(),
+                    FavoritesTab(teams: teams, favoriteTeamId: 4),
                   ]);
                 } else {
                   return const Center(
@@ -208,8 +239,8 @@ class _MyApp extends State<MyApp> {
                   );
                 }
               }),
-                ),
-          ),
-        ));
+        ),
+      ),
+    ));
   }
 }

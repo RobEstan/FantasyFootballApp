@@ -15,7 +15,6 @@ class Team {
   int? ties;
   List<Game> games = [];
 
-
   Team({
     required this.abbreviation,
     required this.name,
