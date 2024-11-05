@@ -27,6 +27,7 @@ class DisplayTeam extends StatefulWidget {
 class _DisplayTeam extends State<DisplayTeam> {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+
   String? getOpponentLogo(String opponentName) {
     for (var i = 0; i < widget.teams.length; i++) {
       if (widget.teams[i].name == opponentName) {
@@ -75,7 +76,8 @@ class _DisplayTeam extends State<DisplayTeam> {
             importance: Importance.max,
             priority: Priority.high,
             ticker: 'ticker',
-            icon: '@mipmap/ic_launcher');
+            icon: '@drawable/ic_launcher_foreground',
+            color: Colors.black);
     const NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
     await flutterLocalNotificationsPlugin.show(
@@ -83,7 +85,7 @@ class _DisplayTeam extends State<DisplayTeam> {
         'Final Score',
         '${getTeamAbbr(widget.team.getLastGame()!.awayTeam)} ${widget.team.getLastGame()!.awayScore} - ${getTeamAbbr(widget.team.getLastGame()!.homeTeam)} ${widget.team.getLastGame()!.homeScore}',
         notificationDetails,
-        payload: 'item x');
+        payload: 'item x',);
   }
 
   @override
