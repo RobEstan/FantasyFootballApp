@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:main/favorites_model.dart';
 import 'package:main/team.dart';
 import 'package:main/teams_tab.dart';
@@ -27,10 +28,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyApp extends State<MyApp> {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
   List<Team> teams = [];
   List<Player> players = [];
   List<Game> games = [];
   late Future _future;
+  late Future _notifications;
   final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
   final shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
   final himnishHeaders = {'x-rapidapi-key': '30206e5d618f7492ca4322ff246895a0'};
@@ -170,6 +174,13 @@ class _MyApp extends State<MyApp> {
     }
   }
 
+  Future<void>requestPermissions() async {
+    final bool? notificationsEnabled = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.areNotificationsEnabled();
+    if (!notificationsEnabled!) {
+      flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+    }
+  }
+
   @override
   void initState() {
     _future = getTeams().then((_) async {
@@ -177,6 +188,7 @@ class _MyApp extends State<MyApp> {
       await getGames();
       await getSingularPlayer();
     });
+    _notifications = requestPermissions();
     super.initState();
   }
 
@@ -221,13 +233,11 @@ class _MyApp extends State<MyApp> {
                 ]),
           ),
           body: FutureBuilder(
-              future: _future,
+              future: Future.wait([_future, _notifications]),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   Provider.of<FavoritesModel>(context, listen: false).favoriteTeams = [teams[3], teams[4]];
                   return TabBarView(children: [
-                    //If you have to pass a parameter to your class (as I did for TeamsTab),
-                    //you will have to remove const!
                     ScoresTab(teams: teams, games: games),
                     const StandingsTab(),
                     TeamsTab(
@@ -242,8 +252,9 @@ class _MyApp extends State<MyApp> {
                   );
                 }
               }),
+          ),
         ),
       ),
-    ));
+    );
   }
 }
