@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:main/favorites_model.dart';
+import 'package:main/games_model.dart';
 import 'package:main/team.dart';
 import 'package:main/teams_tab.dart';
 import 'package:provider/provider.dart';
@@ -13,10 +14,19 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(ChangeNotifierProvider(
-    create: (context) => FavoritesModel(),
-    child: const MyApp(),
-  ));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => FavoritesModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => GamesModel(),
+        )
+      ],
+      child: const MyApp(),
+    )
+  );
 }
 
 class MyApp extends StatefulWidget {
