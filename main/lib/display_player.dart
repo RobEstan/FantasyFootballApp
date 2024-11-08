@@ -5,18 +5,19 @@ class DisplayPlayer extends StatelessWidget {
   const DisplayPlayer({
     super.key,
     required this.player,
+    required this.showAppBar,
   });
 
   final Player player;
-
+  final bool showAppBar;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(
+      appBar: showAppBar ? AppBar(
           title: Text(player.name),
-          backgroundColor: Theme.of(context).colorScheme.primary),
+          backgroundColor: Theme.of(context).colorScheme.primary) : null,
       body: Column(
         children: [
           Row(

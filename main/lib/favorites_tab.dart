@@ -4,6 +4,7 @@ import 'package:main/display_team.dart';
 import 'package:main/favorites_model.dart';
 import 'package:main/player.dart';
 import 'package:provider/provider.dart';
+import 'package:main/display_player.dart';
 // import 'dart:convert';
 import './team.dart';
 // import 'package:timezone/data/latest.dart' as tz;
@@ -137,7 +138,7 @@ class _FavoritesTab extends State<FavoritesTab> with TickerProviderStateMixin {
 
     for (Player player in Provider.of<FavoritesModel>(context).favoritePlayers) {
       tabTitles.add(Tab(text: player.name,));
-      tabContents.add(const Text('No data yet'));
+      tabContents.add(DisplayPlayer(player: player, showAppBar: false));
     }
 
     return 

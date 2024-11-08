@@ -31,4 +31,12 @@ class FavoritesModel extends ChangeNotifier {
 
     return false;
   }
+
+  bool isFavPlayer(Player player) {
+      if (favoritePlayers.contains(player)) {
+        return true;
+      }
+
+      return false;
+    }
 }
