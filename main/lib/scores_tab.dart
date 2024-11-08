@@ -3,6 +3,8 @@ import 'package:main/game_details.dart';
 import 'package:main/team.dart';
 import 'package:main/game.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
+import 'package:main/games_model.dart';
 
 class ScoresTab extends StatefulWidget{
   const ScoresTab({super.key, required this.teams, required this.games});
@@ -25,17 +27,16 @@ Team getTeamFromTeams(List<Team> teams, String target) {
 }
 
 class _ScoresTab extends State<ScoresTab> {
-
   @override
   Widget build(BuildContext context) {
     var items = [];
     var icons = [];
 
-    // For each NFL game in the week specified, this loop adds a string containing the teams and 
-    // score of the game to items, and adds a list of two icons to the icons list, one for each team
+    // For each NFL game in the week specified, this loop adds the game to the items list 
+    // and adds a list of two icons (one for each team) to the icons list
     for (var i = 0; i < widget.games.length; i++) {
       if (widget.games[i].week == 'Week 7') {
-        items.add('${widget.games[i].awayTeam} at ${widget.games[i].homeTeam} (${widget.games[i].awayScore} - ${widget.games[i].homeScore})');
+        items.add(widget.games[i]);
         icons.add([getTeamFromTeams(widget.teams, widget.games[i].awayTeam!).logo, 
           getTeamFromTeams(widget.teams, widget.games[i].homeTeam!).logo]);
       }
@@ -51,18 +52,20 @@ class _ScoresTab extends State<ScoresTab> {
           itemBuilder: (context, index) {
             return ListTile(
               title: LayoutBuilder(
-                builder: (context, constraints) => GestureDetector(
-                  child:
-                    Center(child: Text(items[index])),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                        MaterialPageRoute(
-                          builder: (context) => const OtherView(),
-                        )
-                    );
-                  },
-                )
+                builder: (context, constraints) => 
+                  GestureDetector(
+                    child:
+                      Center(child: Text('${items[index].awayTeam} at ${items[index].homeTeam} (${items[index].awayScore} - ${items[index].homeScore})')),
+                    onTap: () {
+                      Provider.of<GamesModel>(context, listen: false).editCurrGame(items[index]);
+                      Navigator.push(
+                        context,
+                          MaterialPageRoute(
+                            builder: (context) => OtherView(logos: icons[index]),
+                          )
+                      );
+                    },
+                  )
               ),
               leading: SizedBox(
                 height: 30, 
@@ -90,3 +93,4 @@ class _ScoresTab extends State<ScoresTab> {
     );
   }
 }
+//}
