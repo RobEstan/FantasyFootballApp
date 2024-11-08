@@ -229,7 +229,7 @@ class _MyApp extends State<MyApp> {
                     //If you have to pass a parameter to your class (as I did for TeamsTab),
                     //you will have to remove const!
                     ScoresTab(teams: teams, games: games),
-                    const StandingsTab(),
+                    StandingsTab(teams: teams),
                     TeamsTab(
                       teams: teams,
                     ),

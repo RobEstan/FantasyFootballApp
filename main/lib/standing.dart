@@ -9,6 +9,7 @@ class Standing {
   final int pointsAgainst;
   final int netPoints;
   final String streak;
+  final int id;
 
   Standing({
     required this.name,
@@ -21,5 +22,6 @@ class Standing {
     required this.pointsAgainst,
     required this.netPoints,
     required this.streak,
+    required this.id,
   });
 }

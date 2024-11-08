@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import './standing.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import './display_team.dart';
+import './team.dart';
 
 const List<String> divisions = ['AFC East', 'AFC North', 'AFC South', 'AFC West', 'NFC East', 'NFC North', 'NFC South', 'NFC West',];
 
 class StandingsTab extends StatefulWidget {
-  const StandingsTab({super.key});
+  const StandingsTab({super.key, required this.teams});
+
+  final List<Team> teams;
 
   @override
   State<StandingsTab> createState() => _StandingsTab();
 }
 
 class _StandingsTab extends State<StandingsTab> {
-  var standings = List.generate(8, (i) => List<Standing>.generate(4, (index) => Standing(name: "", logo: "", position: 0, wins: 0, losses: 0, ties: 0, pointsFor: 0, pointsAgainst: 0, netPoints: 0, streak: ""), growable: false), growable: false);
+  var standings = List.generate(8, (i) => List<Standing>.generate(4, (index) => Standing(name: "", logo: "", position: 0, wins: 0, losses: 0, ties: 0, pointsFor: 0, pointsAgainst: 0, netPoints: 0, streak: "", id: -1), growable: false), growable: false);
   late Future<void> _futureStandings;
 
 
@@ -52,6 +56,7 @@ class _StandingsTab extends State<StandingsTab> {
           pointsAgainst: jsonData[i]['points']['against'],
           netPoints: jsonData[i]['points']['difference'],
           streak: jsonData[i]['streak'],
+          id: jsonData[i]['team']['id'],
         );
         standings[(index/4).floor()][teamStanding.position - 1] = teamStanding;
         index++;
@@ -89,11 +94,13 @@ class _StandingsTab extends State<StandingsTab> {
                       final teamStanding = standings[divisionIndex][teamIndex];
                       return ListTile(
                         leading: teamStanding.logo.isNotEmpty
-                            ? Image.network(
+                            ? Hero(
+                              tag: teamStanding.name,
+                              child: Image.network(
                                 teamStanding.logo,
                                 width: 30,
                                 height: 30,
-                              )
+                              ))
                             : const Icon(Icons.sports_football),
                         title: Text(teamStanding.name),
                         subtitle: Text(
@@ -102,6 +109,18 @@ class _StandingsTab extends State<StandingsTab> {
                           'Record: ${teamStanding.wins}-${teamStanding.losses}-${teamStanding.ties}',
                           style: const TextStyle(fontSize: 14),
                         ),
+                        onTap: () {
+                          Team foundTeam = widget.teams.firstWhere((team) => team.id == teamStanding.id);
+                          Navigator.push(context,
+                            MaterialPageRoute(
+                              builder: (context) => DisplayTeam(
+                                team: foundTeam,
+                                teams: widget.teams,
+                                showAppBar: true,
+                              )
+                            )
+                          );
+                        },
                       );
                     },
                   ),
