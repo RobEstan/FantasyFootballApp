@@ -1,0 +1,18 @@
+Accomplished:
+    * Ability to favorite a player  and have that display on the favorites tab
+    * Added a push notification for a team's last name
+        - Right now this is implemented with a button when on a team's information page
+            or that team's tab on the favorites page that sends a notification with the
+            score of their last game
+    * Added game information when you click on a game from the scores page
+    * Ability to click on a team from the standings page and go to that team's info page
+    * Added an icon to the app and renamed the app from main to Football
+
+We did not accomplish having a notification drawer for teams and players nor do we have fully functioning
+push notifications. We plan on making the notifications appear on their own rather than with a button on
+the team's display page. With the limit on API calls/day we will have to determine a way to get the most
+out of the API calls/day while getting team/player information that will update during a game in order to
+send notifications about that update (i.e. score change, quarter end, player scores). We plan on having
+these notifications turned on for only your favorited teams/players and a way to turn them on/off. We also
+plan on having more information when looking at the information of a game and a player as well as having all
+weeks of the nfl season available on the scores tab.

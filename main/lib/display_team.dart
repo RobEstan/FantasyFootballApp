@@ -417,7 +417,7 @@ class _DisplayTeam extends State<DisplayTeam> {
                   onPressed: () async {
                     await showNotification();
                   },
-                  child: const Icon(Icons.add),
+                  child: const Icon(Icons.notifications_active),
                 ))));
   }
 }
