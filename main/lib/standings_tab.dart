@@ -30,12 +30,13 @@ class _StandingsTab extends State<StandingsTab> {
   
   Future getStandings() async {
     var shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
+    final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
 
     var requestTeams = http.Request(
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/standings?league=1&season=2024'));
-    requestTeams.headers.addAll(shivenHeaders);
+    requestTeams.headers.addAll(jakeHeaders);
     http.StreamedResponse response = await requestTeams.send();
 
     int index = 0;
