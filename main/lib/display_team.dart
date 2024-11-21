@@ -41,6 +41,7 @@ class _DisplayTeam extends State<DisplayTeam> {
   void initState() {
     super.initState();
     tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('America/New_York'));
   }
 
   String convertUtcTimeToEst(String utcTime) {
@@ -88,8 +89,41 @@ class _DisplayTeam extends State<DisplayTeam> {
         payload: 'item x',);
   }
 
+  Future<void> setScheduledNotification(Team t) async {
+    const AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails('your channel id', 'your channel name',
+            channelDescription: 'your channel description',
+            importance: Importance.max,
+            priority: Priority.high,
+            ticker: 'ticker',
+            icon: '@drawable/ic_launcher_foreground',
+            color: Colors.black);
+    const NotificationDetails notificationDetails =
+        NotificationDetails(android: androidNotificationDetails);
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        notifId++,
+        'Final Score',
+        '${getTeamAbbr(t.getLastGame()!.awayTeam)} ${t.getLastGame()!.awayScore} - ${getTeamAbbr(t.getLastGame()!.homeTeam)} ${t.getLastGame()!.homeScore}',
+        tz.TZDateTime.from(
+            DateTime.parse(t.getNextGame()!.date)
+                .add(const Duration(days: 1)),
+            tz.local),
+        notificationDetails,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        androidScheduleMode: AndroidScheduleMode.exact);
+  }
+
+  Future<void> clearScheduledNotifs() async {
+    await flutterLocalNotificationsPlugin.cancelAll();
+  }
+
   @override
   Widget build(BuildContext context) {
+    clearScheduledNotifs();
+    Provider.of<FavoritesModel>(context, listen: true).favoriteTeams.forEach((team) {
+      setScheduledNotification(team);
+    });
     return Consumer<FavoritesModel>(
         builder: (context, model, child) => SafeArea(
             child: Scaffold(
