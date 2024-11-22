@@ -6,6 +6,7 @@ import 'package:main/games_model.dart';
 import 'package:main/team.dart';
 import 'package:main/teams_tab.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import './favorites_tab.dart';
 import './players_tab.dart';
 import './scores_tab.dart';
@@ -143,6 +144,22 @@ class _MyApp extends State<MyApp> {
           awayTeam: currData['teams']['away']['name'],
           homeScore: currData['scores']['home']['total'],
           awayScore: currData['scores']['away']['total'],
+          awayBox: currData['game']['status']['long'] == 'Not Started'
+              ? []
+              : [
+                  currData['scores']['away']['quarter_1'] ?? 0,
+                  currData['scores']['away']['quarter_2'] ?? 0,
+                  currData['scores']['away']['quarter_3'] ?? 0,
+                  currData['scores']['away']['quarter_4'] ?? 0,
+                ],
+          homeBox: currData['game']['status']['long'] == 'Not Started'
+              ? []
+              : [
+                  currData['scores']['home']['quarter_1'] ?? 0,
+                  currData['scores']['home']['quarter_2'] ?? 0,
+                  currData['scores']['home']['quarter_3'] ?? 0,
+                  currData['scores']['home']['quarter_4'] ?? 0,
+                ],
         );
         var foundTeams = 0;
         for (Team team in teams) {
@@ -198,12 +215,49 @@ class _MyApp extends State<MyApp> {
     }
   }
 
+  void addSavedFavTeam(String teamName) {
+    for (Team t in teams) {
+      if (t.name == teamName) {
+        print('adding');
+        Provider.of<FavoritesModel>(context, listen: false).editFavTeams(t);
+      }
+    }
+  }
+
+  void addSavedFavPlayer(String playerName) {
+    for (Player p in players) {
+      if (p.name == playerName) {
+        Provider.of<FavoritesModel>(context, listen: false).addFavPlayer(p);
+      }
+    }
+  }
+
+  Future<void> getFavorites() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    print('hi');
+    final List<String> favTeams = prefs.getStringList('favoriteTeams') ?? [];
+    final List<String> favPlayers = prefs.getStringList('favoritePlayers') ?? [];
+    print(favTeams);
+    for (String t in favTeams) {
+      addSavedFavTeam(t);
+    }
+    for (String p in favPlayers) {
+      addSavedFavPlayer(p);
+    }
+  }
+
   @override
   void initState() {
     _future = getTeams().then((_) async {
+      print('standings');
       await getStandings();
+      print('games');
       await getGames();
+      print('single player');
       await getSingularPlayer();
+      print('favs');
+      await getFavorites();
+      print('done');
     });
     _notifications = requestPermissions();
     super.initState();
@@ -253,7 +307,7 @@ class _MyApp extends State<MyApp> {
               future: Future.wait([_future, _notifications]),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  Provider.of<FavoritesModel>(context, listen: false).favoriteTeams = [teams[3], teams[4]];
+                  //Provider.of<FavoritesModel>(context, listen: false).favoriteTeams = [teams[3], teams[4]];
                   return TabBarView(children: [
                     ScoresTab(teams: teams, games: games),
                     StandingsTab(teams: teams),

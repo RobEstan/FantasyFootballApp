@@ -54,9 +54,12 @@ class _DisplayTeam extends State<DisplayTeam> {
     return '${estDateTime.hour > 12 ? estDateTime.hour - 12 : estDateTime.hour}:${estDateTime.minute.toString().padLeft(2, '0')} ${estDateTime.hour >= 12 ? 'PM' : 'AM'}';
   }
 
-  String convertDate(String date) {
-    List<String> dateAsList = date.split('-');
-    return '${dateAsList[1]}/${dateAsList[2]}';
+  String convertDateTimeToEst(String date, String time) {
+    String utcGameTime = '${date}T$time:00Z';
+    DateTime parsedTime = DateTime.parse(utcGameTime);
+    DateTime estGameTime =
+        tz.TZDateTime.from(parsedTime, tz.getLocation('America/New_York'));
+    return '${estGameTime.month}/${estGameTime.day}';
   }
 
   String getTeamAbbr(String? teamName) {
@@ -90,7 +93,6 @@ class _DisplayTeam extends State<DisplayTeam> {
   }
 
   Future<void> setScheduledNotification(Team t) async {
-    print('setting');
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails('your channel id', 'your channel name',
             channelDescription: 'your channel description',
@@ -387,8 +389,8 @@ class _DisplayTeam extends State<DisplayTeam> {
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(
                                             0, 25.0, 20.0, 0),
-                                        child: Text(convertDate(
-                                            widget.team.getNextGame()!.date)),
+                                        child: Text(convertDateTimeToEst(
+                                            widget.team.getNextGame()!.date, widget.team.getNextGame()!.time)),
                                       ),
                                     ],
                                   ),

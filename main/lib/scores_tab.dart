@@ -66,9 +66,12 @@ class _ScoresTab extends State<ScoresTab> {
     return '${estDateTime.hour > 12 ? estDateTime.hour - 12 : estDateTime.hour}:${estDateTime.minute.toString().padLeft(2, '0')} ${estDateTime.hour >= 12 ? 'PM' : 'AM'}';
   }
 
-  String convertDate(String date) {
-    List<String> dateAsList = date.split('-');
-    return '${dateAsList[1]}/${dateAsList[2]}';
+  String convertDateTimeToEst(String date, String time) {
+    String utcGameTime = '${date}T$time:00Z';
+    DateTime parsedTime = DateTime.parse(utcGameTime);
+    DateTime estGameTime =
+        tz.TZDateTime.from(parsedTime, tz.getLocation('America/New_York'));
+    return '${estGameTime.month}/${estGameTime.day}';
   }
 
   @override
@@ -118,7 +121,7 @@ class _ScoresTab extends State<ScoresTab> {
                           child:
                             Builder(builder: (context) {
                               if (items[index].awayScore == null) {
-                                return Center(child: Text('${items[index].awayTeam} at ${items[index].homeTeam} on ${convertDate(items[index].date)} at ${convertUtcTimeToEst(
+                                return Center(child: Text('${items[index].awayTeam} at ${items[index].homeTeam} on ${convertDateTimeToEst(items[index].date, items[index].time)} at ${convertUtcTimeToEst(
                                           items[index].time)}'));
                               } else {
                                 return Center(child: Text('${items[index].awayTeam} at ${items[index].homeTeam} (${items[index].awayScore} - ${items[index].homeScore})'));
@@ -129,7 +132,7 @@ class _ScoresTab extends State<ScoresTab> {
                             Navigator.push(
                               context,
                                 MaterialPageRoute(
-                                  builder: (context) => OtherView(logos: icons[index]),
+                                  builder: (context) => OtherView(logos: icons[index], teams: widget.teams),
                                 )
                             );
                           },

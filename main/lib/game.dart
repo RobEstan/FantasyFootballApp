@@ -12,6 +12,8 @@ class Game {
   final String? awayTeam;
   final int? homeScore;
   final int? awayScore;
+  final List<int> awayBox;
+  final List<int> homeBox;
 
   Game({
     required this.stage,
@@ -24,5 +26,7 @@ class Game {
     required this.awayTeam,
     required this.homeScore,
     required this.awayScore,
+    required this.awayBox,
+    required this.homeBox,
   });
 }
