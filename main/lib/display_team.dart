@@ -63,14 +63,22 @@ class _DisplayTeam extends State<DisplayTeam> {
   }
 
   String getTeamAbbr(String? teamName) {
-    if(teamName != null) {
-      for(Team t in widget.teams) {
+    if (teamName != null) {
+      for (Team t in widget.teams) {
         if (t.name == teamName) {
+          if (t.name == "Los Angeles Rams") {
+            return "${t.abbreviation}R";
+          }
           return t.abbreviation;
         }
       }
     }
     return 'Team Not Found';
+  }
+
+  String justTeamName(String team) {
+    final teamList = team.split(' ');
+    return teamList[teamList.length - 1];
   }
 
   Future<void> showNotification() async {
@@ -92,41 +100,8 @@ class _DisplayTeam extends State<DisplayTeam> {
         payload: 'item x',);
   }
 
-  Future<void> setScheduledNotification(Team t) async {
-    const AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails('your channel id', 'your channel name',
-            channelDescription: 'your channel description',
-            importance: Importance.max,
-            priority: Priority.high,
-            ticker: 'ticker',
-            icon: '@drawable/ic_launcher_foreground',
-            color: Colors.black);
-    const NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-        notifId++,
-        'Final Score',
-        '${getTeamAbbr(t.getLastGame()!.awayTeam)} ${t.getLastGame()!.awayScore} - ${getTeamAbbr(t.getLastGame()!.homeTeam)} ${t.getLastGame()!.homeScore}',
-        tz.TZDateTime.from(
-            DateTime.parse(t.getNextGame()!.date)
-                .add(const Duration(days: 1)),
-            tz.local),
-        notificationDetails,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        androidScheduleMode: AndroidScheduleMode.inexact);
-  }
-
-  Future<void> clearScheduledNotifs() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
-  }
-
   @override
   Widget build(BuildContext context) {
-    clearScheduledNotifs();
-    Provider.of<FavoritesModel>(context, listen: true).favoriteTeams.forEach((team) {
-      setScheduledNotification(team);
-    });
     return Consumer<FavoritesModel>(
         builder: (context, model, child) => SafeArea(
             child: Scaffold(
@@ -158,7 +133,7 @@ class _DisplayTeam extends State<DisplayTeam> {
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
                               width: 100,
@@ -168,10 +143,6 @@ class _DisplayTeam extends State<DisplayTeam> {
                                   child: Image(
                                       image: NetworkImage(widget.team.logo,
                                           scale: 1.5)))),
-                          Text(
-                            widget.team.name,
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          )
                         ],
                       ),
                       Builder(builder: (context) {
@@ -216,107 +187,107 @@ class _DisplayTeam extends State<DisplayTeam> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.inversePrimary,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Builder(builder: (context) {
-                            if (widget.team.getLastGame() == null) {
-                              return Text(
-                                  'The ${widget.team.name} have not played a game yet.');
-                            } else {
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Column(
+                            children: [
+                              const Divider(color: Colors.black,),
+                              Builder(builder: (context) {
+                                if (widget.team.getLastGame() == null) {
+                                  return Text(
+                                      'The ${widget.team.name} have not played a game yet.');
+                                } else {
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Builder(builder: (context) {
-                                            var awayTeamName = widget.team
-                                                .getLastGame()!
-                                                .awayTeam;
-                                            dynamic awayTeamLogo;
-                                            if (awayTeamName !=
-                                                widget.team.name) {
-                                              awayTeamLogo = getOpponentLogo(
-                                                  widget.team
-                                                      .getLastGame()!
-                                                      .awayTeam!);
-                                            } else {
-                                              awayTeamLogo = widget.team.logo;
-                                            }
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                left: 8.0,
-                                                right: 8.0,
+                                          Row(
+                                            children: [
+                                              Builder(builder: (context) {
+                                                var awayTeamName = widget.team
+                                                    .getLastGame()!
+                                                    .awayTeam;
+                                                dynamic awayTeamLogo;
+                                                if (awayTeamName !=
+                                                    widget.team.name) {
+                                                  awayTeamLogo = getOpponentLogo(
+                                                      widget.team
+                                                          .getLastGame()!
+                                                          .awayTeam!);
+                                                } else {
+                                                  awayTeamLogo = widget.team.logo;
+                                                }
+                                                return Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    left: 8.0,
+                                                    right: 8.0,
+                                                  ),
+                                                  child: SizedBox(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child: Image(
+                                                          image: NetworkImage(
+                                                              awayTeamLogo))),
+                                                );
+                                              }),
+                                              Text(
+                                                '${widget.team.getLastGame()!.awayTeam}: ${widget.team.getLastGame()!.awayScore}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge,
                                               ),
-                                              child: SizedBox(
-                                                  width: 50,
-                                                  height: 50,
-                                                  child: Image(
-                                                      image: NetworkImage(
-                                                          awayTeamLogo))),
-                                            );
-                                          }),
-                                          Text(
-                                            '${widget.team.getLastGame()!.awayTeam}: ${widget.team.getLastGame()!.awayScore}',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge,
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Builder(builder: (context) {
+                                                var homeTeamName = widget.team
+                                                    .getLastGame()!
+                                                    .homeTeam;
+                                                dynamic homeTeamLogo;
+                                                if (homeTeamName !=
+                                                    widget.team.name) {
+                                                  homeTeamLogo = getOpponentLogo(
+                                                      widget.team
+                                                          .getLastGame()!
+                                                          .homeTeam!);
+                                                } else {
+                                                  homeTeamLogo = widget.team.logo;
+                                                }
+                                                return Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    left: 8.0,
+                                                    right: 8.0,
+                                                  ),
+                                                  child: SizedBox(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child: Image(
+                                                          image: NetworkImage(
+                                                              homeTeamLogo))),
+                                                );
+                                              }),
+                                              Text(
+                                                  '${widget.team.getLastGame()!.homeTeam}: ${widget.team.getLastGame()!.homeScore}',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge),
+                                            ],
                                           ),
                                         ],
                                       ),
                                     ],
-                                  ),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Builder(builder: (context) {
-                                            var homeTeamName = widget.team
-                                                .getLastGame()!
-                                                .homeTeam;
-                                            dynamic homeTeamLogo;
-                                            if (homeTeamName !=
-                                                widget.team.name) {
-                                              homeTeamLogo = getOpponentLogo(
-                                                  widget.team
-                                                      .getLastGame()!
-                                                      .homeTeam!);
-                                            } else {
-                                              homeTeamLogo = widget.team.logo;
-                                            }
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                left: 8.0,
-                                                right: 8.0,
-                                              ),
-                                              child: SizedBox(
-                                                  width: 50,
-                                                  height: 50,
-                                                  child: Image(
-                                                      image: NetworkImage(
-                                                          homeTeamLogo))),
-                                            );
-                                          }),
-                                          Text(
-                                              '${widget.team.getLastGame()!.homeTeam}: ${widget.team.getLastGame()!.homeScore}',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              );
-                            }
-                          }),
-                        ),
+                                  );
+                                }
+                              }),
+                              const Divider(color: Colors.black,),
+                            ],
+                          ),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0, top: 50.0),
@@ -332,124 +303,124 @@ class _DisplayTeam extends State<DisplayTeam> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.inversePrimary,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Builder(builder: (context) {
-                            if (widget.team.getNextGame() == null) {
-                              return Text(
-                                  'The ${widget.team.name} do not have any future games.');
-                            } else {
-                              return Column(
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                        child: Column(
+                          children: [
+                            const Divider(color: Colors.black,),
+                            Builder(builder: (context) {
+                                if (widget.team.getNextGame() == null) {
+                                  return Text(
+                                      'The ${widget.team.name} do not have any future games.');
+                                } else {
+                                  return Column(
                                     children: [
                                       Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          Builder(builder: (context) {
-                                            var awayTeamName = widget.team
-                                                .getNextGame()!
-                                                .awayTeam;
-                                            dynamic awayTeamLogo;
-                                            if (awayTeamName !=
-                                                widget.team.name) {
-                                              awayTeamLogo = getOpponentLogo(
+                                          Row(
+                                            children: [
+                                              Builder(builder: (context) {
+                                                var awayTeamName = widget.team
+                                                    .getNextGame()!
+                                                    .awayTeam;
+                                                dynamic awayTeamLogo;
+                                                if (awayTeamName !=
+                                                    widget.team.name) {
+                                                  awayTeamLogo = getOpponentLogo(
+                                                      widget.team
+                                                          .getNextGame()!
+                                                          .awayTeam!);
+                                                } else {
+                                                  awayTeamLogo = widget.team.logo;
+                                                }
+                                                return Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    left: 8.0,
+                                                    right: 8.0,
+                                                  ),
+                                                  child: SizedBox(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child: Image(
+                                                          image: NetworkImage(
+                                                              awayTeamLogo))),
+                                                );
+                                              }),
+                                              Text(
                                                   widget.team
                                                       .getNextGame()!
-                                                      .awayTeam!);
-                                            } else {
-                                              awayTeamLogo = widget.team.logo;
-                                            }
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                left: 8.0,
-                                                right: 8.0,
-                                              ),
-                                              child: SizedBox(
-                                                  width: 50,
-                                                  height: 50,
-                                                  child: Image(
-                                                      image: NetworkImage(
-                                                          awayTeamLogo))),
-                                            );
-                                          }),
-                                          Text(
-                                              widget.team
-                                                  .getNextGame()!
-                                                  .awayTeam!,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge),
+                                                      .awayTeam!,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge),
+                                            ],
+                                          ),
+                                          const Spacer(),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 25.0, 20.0, 0),
+                                            child: Text(convertDateTimeToEst(
+                                                widget.team.getNextGame()!.date, widget.team.getNextGame()!.time)),
+                                          ),
                                         ],
                                       ),
-                                      const Spacer(),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            0, 25.0, 20.0, 0),
-                                        child: Text(convertDateTimeToEst(
-                                            widget.team.getNextGame()!.date, widget.team.getNextGame()!.time)),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
                                       Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          Builder(builder: (context) {
-                                            var homeTeamName = widget.team
-                                                .getNextGame()!
-                                                .homeTeam;
-                                            dynamic homeTeamLogo;
-                                            if (homeTeamName !=
-                                                widget.team.name) {
-                                              homeTeamLogo = getOpponentLogo(
+                                          Row(
+                                            children: [
+                                              Builder(builder: (context) {
+                                                var homeTeamName = widget.team
+                                                    .getNextGame()!
+                                                    .homeTeam;
+                                                dynamic homeTeamLogo;
+                                                if (homeTeamName !=
+                                                    widget.team.name) {
+                                                  homeTeamLogo = getOpponentLogo(
+                                                      widget.team
+                                                          .getNextGame()!
+                                                          .homeTeam!);
+                                                } else {
+                                                  homeTeamLogo = widget.team.logo;
+                                                }
+                                                return Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    left: 8.0,
+                                                    right: 8.0,
+                                                  ),
+                                                  child: SizedBox(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child: Image(
+                                                          image: NetworkImage(
+                                                              homeTeamLogo))),
+                                                );
+                                              }),
+                                              Text(
                                                   widget.team
                                                       .getNextGame()!
-                                                      .homeTeam!);
-                                            } else {
-                                              homeTeamLogo = widget.team.logo;
-                                            }
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                left: 8.0,
-                                                right: 8.0,
-                                              ),
-                                              child: SizedBox(
-                                                  width: 50,
-                                                  height: 50,
-                                                  child: Image(
-                                                      image: NetworkImage(
-                                                          homeTeamLogo))),
-                                            );
-                                          }),
-                                          Text(
-                                              widget.team
-                                                  .getNextGame()!
-                                                  .homeTeam!,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge),
+                                                      .homeTeam!,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge),
+                                            ],
+                                          ),
+                                          const Spacer(),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 0, 12.0, 25.0),
+                                            child: Text(convertUtcTimeToEst(
+                                                widget.team.getNextGame()!.time)),
+                                          ),
                                         ],
                                       ),
-                                      const Spacer(),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            0, 0, 12.0, 25.0),
-                                        child: Text(convertUtcTimeToEst(
-                                            widget.team.getNextGame()!.time)),
-                                      )
                                     ],
-                                  ),
-                                ],
-                              );
-                            }
-                          }),
+                                  );
+                                }
+                              }),
+                              const Divider(color: Colors.black,),
+                          ],
                         ),
-                      )
+                        ),
                     ],
                   ),
                 ),

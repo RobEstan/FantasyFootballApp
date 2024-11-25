@@ -45,6 +45,11 @@ class OtherView extends StatelessWidget {
       return 'Team Not Found';
     }
 
+  String justTeamName(String team) {
+    final teamList = team.split(' ');
+    return teamList[teamList.length - 1];
+  }
+
   @override
   Widget build(BuildContext context) {
     initTimezone();
@@ -64,7 +69,7 @@ class OtherView extends StatelessWidget {
                     child: Column(
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CachedNetworkImage(
                               imageUrl: logos[0],
@@ -77,18 +82,21 @@ class OtherView extends StatelessWidget {
                               height: 50,
                               width: 50,
                             ),
-                            Text(
-                              '${model.currGame.awayTeam}',
-                              style: Theme.of(context).textTheme.headlineSmall,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+                              child: Text(
+                                justTeamName(model.currGame.awayTeam!),
+                                style: Theme.of(context).textTheme.headlineMedium,
+                              ),
                             ),
                             Text(
                               model.currGame.awayScore != null ? '${model.currGame.awayScore}' : '',
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              style: Theme.of(context).textTheme.headlineMedium,
                             ),
                           ],
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CachedNetworkImage(
                               imageUrl: logos[1],
@@ -101,13 +109,16 @@ class OtherView extends StatelessWidget {
                               height: 50,
                               width: 50,
                             ),
-                            Text(
-                              '${model.currGame.homeTeam}',
-                              style: Theme.of(context).textTheme.headlineSmall,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+                              child: Text(
+                                justTeamName(model.currGame.homeTeam!),
+                                style: Theme.of(context).textTheme.headlineMedium,
+                              ),
                             ),
                             Text(
                               model.currGame.homeScore != null ? '${model.currGame.homeScore}' : '',
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              style: Theme.of(context).textTheme.headlineMedium,
                             ),
                           ],
                         ),

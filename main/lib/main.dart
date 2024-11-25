@@ -1,3 +1,4 @@
+import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -15,6 +16,28 @@ import './game.dart';
 import './player.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'last_game_notifs.dart';
+
+@pragma('vm:entry-point')
+void backgroundFetchHeadlessTask(HeadlessTask task) async {
+  String taskId = task.taskId;
+  bool isTimeout = task.timeout;
+  if (isTimeout) {
+    print('[BackgroundFetch] Headless task timed-out: $taskId');
+    BackgroundFetch.finish(taskId);
+    return;
+  }
+  print('[BackgroundFetch] Headless event received.');
+
+  DateTime now = DateTime.now();
+
+  if (now.hour == 6 && now.weekday == 2) {
+    await callAPI();
+    await sendNotification();
+  }
+
+  BackgroundFetch.finish(taskId);
+}
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +59,8 @@ void main() {
       child: const MyApp(),
     )
   );
+
+  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
 
 class MyApp extends StatefulWidget {
@@ -83,6 +108,7 @@ class _MyApp extends State<MyApp> {
 
         teams.add(team);
       }
+      teams.sort((a, b) => a.name.compareTo(b.name));
     } else {
       print(response.reasonPhrase);
     }
@@ -246,6 +272,37 @@ class _MyApp extends State<MyApp> {
     }
   }
 
+  initBackgroundFetch() {
+    BackgroundFetch.configure(
+      BackgroundFetchConfig(
+          minimumFetchInterval: 15,
+          stopOnTerminate: false,
+          enableHeadless: true,
+          requiresBatteryNotLow: false,
+          requiresCharging: false,
+          requiresStorageNotLow: false,
+          requiresDeviceIdle: false,
+          requiredNetworkType: NetworkType.NONE),
+      (String taskID) async {
+        DateTime now = DateTime.now();
+
+        if (now.hour == 6 && now.weekday == 2) {
+          await callAPI();
+          await sendNotification();
+        }
+        print('[BackgroundFetch] Task Complete: $taskID');
+        BackgroundFetch.finish(taskID);
+      },
+      (String taskID) async {
+        print("[BackgrounFetch] Task failed: $taskID");
+        BackgroundFetch.finish(taskID);
+      },
+    ).catchError((e) {
+      print('[BackgroundFetch] Configure error: $e');
+      return e;
+    });
+  }
+
   @override
   void initState() {
     _future = getTeams().then((_) async {
@@ -260,6 +317,7 @@ class _MyApp extends State<MyApp> {
       print('done');
     });
     _notifications = requestPermissions();
+    initBackgroundFetch();
     super.initState();
   }
 
@@ -307,7 +365,6 @@ class _MyApp extends State<MyApp> {
               future: Future.wait([_future, _notifications]),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  //Provider.of<FavoritesModel>(context, listen: false).favoriteTeams = [teams[3], teams[4]];
                   return TabBarView(children: [
                     ScoresTab(teams: teams, games: games),
                     StandingsTab(teams: teams),

@@ -10,10 +10,14 @@ class FavoritesModel extends ChangeNotifier {
   void saveToSharedPrefs() async {
     List<String> favTeamNames = [];
     List<String> favPlayerNames = [];
+    List<String> favTeamIDs = [];
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     if (favoriteTeams.isNotEmpty) {
       favTeamNames = favoriteTeams.map((t) {
         return t.name;
+      }).toList();
+      favTeamIDs = favoriteTeams.map((t) {
+        return t.id.toString();
       }).toList();
     }
     if (favoritePlayers.isNotEmpty) {
@@ -23,6 +27,7 @@ class FavoritesModel extends ChangeNotifier {
     }
     prefs.setStringList('favoriteTeams', favTeamNames);
     prefs.setStringList('favoritePlayers', favPlayerNames);
+    prefs.setStringList('favoriteTeamsID', favTeamIDs);
   }
 
   void editFavTeams(Team team) {
