@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:main/game_details.dart';
 import 'package:main/team.dart';
 import 'package:main/game.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:main/games_model.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -252,7 +251,7 @@ class _ScoresTab extends State<ScoresTab> {
                                           ],
                                         ),
                                         const SizedBox(
-                                          width: 75,
+                                          width: 50,
                                         ),
                                         Column(
                                           crossAxisAlignment:
@@ -284,7 +283,7 @@ class _ScoresTab extends State<ScoresTab> {
                                           ],
                                         ),
                                         const SizedBox(
-                                          width: 50,
+                                          width: 25,
                                         ),
                                         Builder(builder: (context) {
                                           if (items[index].status ==

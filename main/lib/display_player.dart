@@ -36,11 +36,6 @@ class DisplayPlayer extends StatelessWidget {
               )
             ],
           ),
-          Text('Age: ${player.age}', style: Theme.of(context).textTheme.bodyLarge),
-          Text('Height: ${player.height}', style: Theme.of(context).textTheme.bodyLarge),
-          Text('Weight: ${player.weight}', style: Theme.of(context).textTheme.bodyLarge),
-          Text('Position: ${player.position}', style: Theme.of(context).textTheme.bodyLarge),
-          Text('Number: ${player.number}', style: Theme.of(context).textTheme.bodyLarge),
           Padding(
             padding: const EdgeInsets.only(left: 8.0, top: 50.0),
             child: Row(
@@ -54,6 +49,11 @@ class DisplayPlayer extends StatelessWidget {
               ],
             ),
           ),
+          Text('Age: ${player.age}', style: Theme.of(context).textTheme.bodyLarge),
+          Text('Height: ${player.height}', style: Theme.of(context).textTheme.bodyLarge),
+          Text('Weight: ${player.weight}', style: Theme.of(context).textTheme.bodyLarge),
+          Text('Position: ${player.position}', style: Theme.of(context).textTheme.bodyLarge),
+          Text('Number: ${player.number}', style: Theme.of(context).textTheme.bodyLarge),
         ],
       ),
     ));
