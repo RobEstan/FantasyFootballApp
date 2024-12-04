@@ -2,6 +2,7 @@
 // import 'package:timezone/timezone.dart' as tz;
 
 class Game {
+  final int id;
   final String stage;
   final String week;
   final String date;
@@ -16,6 +17,7 @@ class Game {
   final List<int> homeBox;
 
   Game({
+    required this.id,
     required this.stage,
     required this.week,
     required this.date,

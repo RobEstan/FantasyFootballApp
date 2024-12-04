@@ -37,7 +37,7 @@ class DisplayPlayer extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 50.0),
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

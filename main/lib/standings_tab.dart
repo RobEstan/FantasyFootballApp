@@ -20,6 +20,9 @@ class _StandingsTab extends State<StandingsTab> {
   var standings = List.generate(8, (i) => List<Standing>.generate(4, (index) => Standing(name: "", logo: "", position: 0, wins: 0, losses: 0, ties: 0, pointsFor: 0, pointsAgainst: 0, netPoints: 0, streak: "", id: -1), growable: false), growable: false);
   late Future<void> _futureStandings;
 
+  final shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
+  final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
+
 
   @override
   void initState() {
@@ -29,9 +32,6 @@ class _StandingsTab extends State<StandingsTab> {
 
   
   Future getStandings() async {
-    var shivenHeaders = {'x-rapidapi-key': '4bb22b892adc41f1e4eaa6800ff36ab9'};
-    final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
-
     var requestTeams = http.Request(
         'GET',
         Uri.parse(

@@ -23,11 +23,9 @@ void backgroundFetchHeadlessTask(HeadlessTask task) async {
   String taskId = task.taskId;
   bool isTimeout = task.timeout;
   if (isTimeout) {
-    print('[BackgroundFetch] Headless task timed-out: $taskId');
     BackgroundFetch.finish(taskId);
     return;
   }
-  print('[BackgroundFetch] Headless event received.');
 
   DateTime now = DateTime.now();
 
@@ -160,6 +158,7 @@ class _MyApp extends State<MyApp> {
       for (var i = 0; i < jsonData.length; i++) {
         var currData = jsonData[i];
         final game = Game(
+          id: currData['game']['id'],
           stage: currData['game']['stage'],
           week: currData['game']['week'],
           date: currData['game']['date']['date'],
@@ -244,7 +243,6 @@ class _MyApp extends State<MyApp> {
   void addSavedFavTeam(String teamName) {
     for (Team t in teams) {
       if (t.name == teamName) {
-        print('adding');
         Provider.of<FavoritesModel>(context, listen: false).editFavTeams(t);
       }
     }
@@ -260,10 +258,8 @@ class _MyApp extends State<MyApp> {
 
   Future<void> getFavorites() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    print('hi');
     final List<String> favTeams = prefs.getStringList('favoriteTeams') ?? [];
     final List<String> favPlayers = prefs.getStringList('favoritePlayers') ?? [];
-    print(favTeams);
     for (String t in favTeams) {
       addSavedFavTeam(t);
     }
@@ -290,15 +286,12 @@ class _MyApp extends State<MyApp> {
           await callAPI();
           await sendNotification();
         }
-        print('[BackgroundFetch] Task Complete: $taskID');
         BackgroundFetch.finish(taskID);
       },
       (String taskID) async {
-        print("[BackgrounFetch] Task failed: $taskID");
         BackgroundFetch.finish(taskID);
       },
     ).catchError((e) {
-      print('[BackgroundFetch] Configure error: $e');
       return e;
     });
   }
@@ -306,18 +299,16 @@ class _MyApp extends State<MyApp> {
   @override
   void initState() {
     _future = getTeams().then((_) async {
-      print('standings');
       await getStandings();
-      print('games');
       await getGames();
-      print('single player');
       await getSingularPlayer();
-      print('favs');
       await getFavorites();
-      print('done');
     });
     _notifications = requestPermissions();
     initBackgroundFetch();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FavoritesModel>(context, listen: false).setNotificationsOn();
+    });
     super.initState();
   }
 
@@ -360,6 +351,15 @@ class _MyApp extends State<MyApp> {
                     icon: Icon(Icons.star, size: 30,),
                   )
                 ]),
+          ),
+          drawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                const DrawerHeader(child: Text('Notification Settings')),
+                SwitchListTile(title: const Text('Enable Notifications'), value: Provider.of<FavoritesModel>(context).notificationsOn, onChanged: Provider.of<FavoritesModel>(context, listen: false).toggleNotifications,)
+              ],
+            ),
           ),
           body: FutureBuilder(
               future: Future.wait([_future, _notifications]),

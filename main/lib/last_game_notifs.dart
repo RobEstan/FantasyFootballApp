@@ -18,7 +18,6 @@ void setLastGame(int len) {
 }
 
 Future<void> callAPI() async {
-  print('API');
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final List<String> favTeamsID = prefs.getStringList('favoriteTeamsID') ?? [];
   setLastGame(favTeamsID.length);
@@ -40,6 +39,7 @@ Future<void> callAPI() async {
         
         if (currData['game']['status']['long'] != 'Not Started') {
           lastGame[x] = Game(
+            id: currData['game']['id'],
             stage: currData['game']['stage'],
             week: currData['game']['week'],
             date: currData['game']['date']['date'],
@@ -78,11 +78,8 @@ Future<void> callAPI() async {
 }
 
 Future<void> sendNotification() async {
-  print('sending...');
   for (var game in lastGame) {
-    print(game.runtimeType);
     if (game is Game) {
-      print('data');
       final Game currGame = game;
       final List<String> homeTeamList = currGame.homeTeam!.split(' ');
       String homeTeam = '';
@@ -108,7 +105,6 @@ Future<void> sendNotification() async {
 }
 
 Future<void> showNotification(String homeTeam, String awayTeam, int homeScore, int awayScore) async {
-  print('notif');
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails('your channel id', 'your channel name',
             channelDescription: 'your channel description',

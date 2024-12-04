@@ -231,7 +231,7 @@ class _ScoresTab extends State<ScoresTab> {
                                               child: Text(
                                                 getTeamAbbr(
                                                     items[index].awayTeam),
-                                                style: !homeWins(items[index]) && (items[index].status == "Finished" || items[index].status == "After Over Time") ? Theme.of(context)
+                                                style: !homeWins(items[index]) && (items[index].status == "Finished" || items[index].status == "Final/OT") ? Theme.of(context)
                                                     .textTheme
                                                     .headlineMedium!.copyWith(fontWeight: FontWeight.bold) :
                                                     Theme.of(context)
@@ -242,7 +242,7 @@ class _ScoresTab extends State<ScoresTab> {
                                             Text(
                                                 getTeamAbbr(
                                                     items[index].homeTeam),
-                                                style: homeWins(items[index]) && (items[index].status == "Finished" || items[index].status == "After Over Time") ? Theme.of(context)
+                                                style: homeWins(items[index]) && (items[index].status == "Finished" || items[index].status == "Final/OT") ? Theme.of(context)
                                                     .textTheme
                                                     .headlineMedium!.copyWith(fontWeight: FontWeight.bold) :
                                                     Theme.of(context)
@@ -263,7 +263,7 @@ class _ScoresTab extends State<ScoresTab> {
                                               height: 50,
                                               child: Text(
                                                 '${items[index].awayScore}',
-                                                style: !homeWins(items[index]) && (items[index].status == "Finished" || items[index].status == "After Over Time") ? Theme.of(context)
+                                                style: !homeWins(items[index]) && (items[index].status == "Finished" || items[index].status == "Final/OT") ? Theme.of(context)
                                                     .textTheme
                                                     .headlineMedium!.copyWith(fontWeight: FontWeight.bold) : 
                                                     Theme.of(context)
@@ -273,7 +273,7 @@ class _ScoresTab extends State<ScoresTab> {
                                             ),
                                             Text(
                                               '${items[index].homeScore}',
-                                              style: homeWins(items[index]) && (items[index].status == "Finished" || items[index].status == "After Over Time") ? Theme.of(context)
+                                              style: homeWins(items[index]) && (items[index].status == "Finished" || items[index].status == "Final/OT") ? Theme.of(context)
                                                   .textTheme
                                                   .headlineMedium!.copyWith(fontWeight: FontWeight.bold) : 
                                                   Theme.of(context)
@@ -303,7 +303,7 @@ class _ScoresTab extends State<ScoresTab> {
                                               ],
                                             );
                                           } else if (items[index].status ==
-                                              "After Over Time") {
+                                              "Final/OT") {
                                             return Column(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.start,
@@ -458,7 +458,8 @@ class _ScoresTab extends State<ScoresTab> {
                                       MaterialPageRoute(
                                         builder: (context) => OtherView(
                                             logos: icons[index],
-                                            teams: widget.teams),
+                                            teams: widget.teams,
+                                            id: items[index].id),
                                       ));
                                 },
                               ),
