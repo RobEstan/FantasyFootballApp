@@ -9,6 +9,9 @@ import 'package:main/games_model.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
+final himnishHeaders = {'x-rapidapi-key': '30206e5d618f7492ca4322ff246895a0'};
+
 class OtherView extends StatelessWidget {
   const OtherView(
       {super.key, required this.logos, required this.teams, required this.id});
@@ -56,23 +59,22 @@ class OtherView extends StatelessWidget {
   }
 
   Future<Map<String, Map<String, dynamic>>> getGameStats() async {
-    final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
     var requestSinglePlayer = http.Request(
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/games/statistics/teams?id=$id'));
-    requestSinglePlayer.headers.addAll(jakeHeaders);
+    requestSinglePlayer.headers.addAll(himnishHeaders);
     http.StreamedResponse response = await requestSinglePlayer.send();
 
     if (response.statusCode == 200) {
       var jsonData =
           jsonDecode(await response.stream.bytesToString())['response'];
-      Map<String, dynamic> awayStats = {
+      Map<String, dynamic> homeStats = {
         'totalYards': jsonData[0]['statistics']['yards']['total'],
         'passingYards': jsonData[0]['statistics']['passing']['total'],
         'rushingYards': jsonData[0]['statistics']['rushings']['total']
       };
-      Map<String, dynamic> homeStats = {
+      Map<String, dynamic> awayStats = {
         'totalYards': jsonData[1]['statistics']['yards']['total'],
         'passingYards': jsonData[1]['statistics']['passing']['total'],
         'rushingYards': jsonData[1]['statistics']['rushings']['total']
@@ -249,28 +251,28 @@ class OtherView extends StatelessWidget {
                                       Center(
                                           child: Text(getTeamAbbr(
                                               model.currGame.awayTeam))),
-                                      const Center(child: Text('')),
-                                      const Center(child: Text('')),
-                                      const Center(child: Text('')),
-                                      const Center(child: Text('')),
-                                      const Center(child: Text('')),
+                                      const Center(child: Text('-')),
+                                      const Center(child: Text('-')),
+                                      const Center(child: Text('-')),
+                                      const Center(child: Text('-')),
+                                      const Center(child: Text('-')),
                                     ]),
                                     TableRow(children: [
                                       Center(
                                           child: Text(getTeamAbbr(
                                               model.currGame.homeTeam))),
-                                      const Center(child: Text('')),
-                                      const Center(child: Text('')),
-                                      const Center(child: Text('')),
-                                      const Center(child: Text('')),
-                                      const Center(child: Text('')),
+                                      const Center(child: Text('-')),
+                                      const Center(child: Text('-')),
+                                      const Center(child: Text('-')),
+                                      const Center(child: Text('-')),
+                                      const Center(child: Text('-')),
                                     ])
                                   ],
                                 );
                               }
                             }),
                             Builder(builder: (context) {
-                              if (model.currGame.status == 'Final' ||
+                              if (model.currGame.status == 'Finished' ||
                                   model.currGame.status == 'Final/OT') {
                                 return Column(
                                   children: [

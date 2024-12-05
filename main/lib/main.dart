@@ -2,6 +2,7 @@ import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:main/drawer_model.dart';
 import 'package:main/favorites_model.dart';
 import 'package:main/games_model.dart';
 import 'package:main/team.dart';
@@ -39,24 +40,23 @@ void backgroundFetchHeadlessTask(HeadlessTask task) async {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitDown,
-    DeviceOrientation.portraitUp
-  ]);
-  
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => FavoritesModel(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => GamesModel(),
-        )
-      ],
-      child: const MyApp(),
-    )
-  );
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
+
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (context) => FavoritesModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => GamesModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => DrawerModel(),
+      )
+    ],
+    child: const MyApp(),
+  ));
 
   BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
@@ -70,7 +70,7 @@ class MyApp extends StatefulWidget {
 
 class _MyApp extends State<MyApp> {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
   List<Team> teams = [];
   List<Player> players = [];
   List<Game> games = [];
@@ -86,7 +86,7 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/teams?league=1&season=2024'));
-    requestTeams.headers.addAll(jakeHeaders);
+    requestTeams.headers.addAll(himnishHeaders);
     http.StreamedResponse response = await requestTeams.send();
 
     if (response.statusCode == 200) {
@@ -117,7 +117,7 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/standings?league=1&season=2024'));
-    requestStandings.headers.addAll(jakeHeaders);
+    requestStandings.headers.addAll(himnishHeaders);
     http.StreamedResponse response = await requestStandings.send();
 
     if (response.statusCode == 200) {
@@ -149,7 +149,7 @@ class _MyApp extends State<MyApp> {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/games?league=1&season=2024'));
-    requestGames.headers.addAll(jakeHeaders);
+    requestGames.headers.addAll(himnishHeaders);
     http.StreamedResponse response = await requestGames.send();
 
     if (response.statusCode == 200) {
@@ -204,39 +204,16 @@ class _MyApp extends State<MyApp> {
     }
   }
 
-  Future getSingularPlayer() async {
-    var requestSinglePlayer = http.Request(
-        'GET',
-        Uri.parse(
-            'https://v1.american-football.api-sports.io/players?season=2024&team=5'));
-    requestSinglePlayer.headers.addAll(jakeHeaders);
-    http.StreamedResponse response = await requestSinglePlayer.send();
-
-    if (response.statusCode == 200) {
-      var jsonData =
-          jsonDecode(await response.stream.bytesToString())['response'];
-      for (var i = 0; i < 8; i++) {
-        var currPlayer = jsonData[i];
-        final Player player = Player(
-            id: currPlayer['id'],
-            name: currPlayer['name'],
-            age: currPlayer['age'],
-            height: currPlayer['height'],
-            weight: currPlayer['weight'],
-            position: currPlayer['position'],
-            number: currPlayer['number'],
-            image: currPlayer['image']);
-        players.add(player);
-      }
-    } else {
-      print(response.reasonPhrase);
-    }
-  }
-
-  Future<void>requestPermissions() async {
-    final bool? notificationsEnabled = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.areNotificationsEnabled();
+  Future<void> requestPermissions() async {
+    final bool? notificationsEnabled = await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.areNotificationsEnabled();
     if (!notificationsEnabled!) {
-      flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+      flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
     }
   }
 
@@ -259,7 +236,8 @@ class _MyApp extends State<MyApp> {
   Future<void> getFavorites() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<String> favTeams = prefs.getStringList('favoriteTeams') ?? [];
-    final List<String> favPlayers = prefs.getStringList('favoritePlayers') ?? [];
+    final List<String> favPlayers =
+        prefs.getStringList('favoritePlayers') ?? [];
     for (String t in favTeams) {
       addSavedFavTeam(t);
     }
@@ -301,14 +279,14 @@ class _MyApp extends State<MyApp> {
     _future = getTeams().then((_) async {
       await getStandings();
       await getGames();
-      await getSingularPlayer();
       await getFavorites();
     });
     _notifications = requestPermissions();
     initBackgroundFetch();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FavoritesModel>(context, listen: false).setNotificationsOn();
+      Provider.of<DrawerModel>(context, listen: false).setNotificationsOn();
     });
+
     super.initState();
   }
 
@@ -316,70 +294,90 @@ class _MyApp extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: DefaultTabController(
-      length: 5,
-      child: SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            title: const Text('Sports App'),
-            bottom: const TabBar(
-                indicatorColor: Colors.white,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.black,
-                indicatorPadding: EdgeInsets.symmetric(horizontal: 8.0),
-                labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                tabs: [
-                  Tab(
-                    text: 'Scores',
-                    icon: Icon(Icons.scoreboard_outlined, size: 30,),
-                  ),
-                  Tab(
-                    text: ('Standings'),
-                    icon: Icon(Icons.list, size: 30,),
-                  ),
-                  Tab(
-                    text: 'Teams',
-                    icon: Icon(Icons.sports_football_outlined, size: 30,),
-                  ),
-                  Tab(
-                    text: 'Players',
-                    icon: Icon(Icons.person_outlined, size: 30,),
-                  ),
-                  Tab(
-                    text: 'Favorites',
-                    icon: Icon(Icons.star, size: 30,),
-                  )
-                ]),
-          ),
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                const DrawerHeader(child: Text('Notification Settings')),
-                SwitchListTile(title: const Text('Enable Notifications'), value: Provider.of<FavoritesModel>(context).notificationsOn, onChanged: Provider.of<FavoritesModel>(context, listen: false).toggleNotifications,)
-              ],
-            ),
-          ),
-          body: FutureBuilder(
-              future: Future.wait([_future, _notifications]),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return TabBarView(children: [
-                    ScoresTab(teams: teams, games: games),
-                    StandingsTab(teams: teams),
-                    TeamsTab(
-                      teams: teams,
+      home: DefaultTabController(
+        length: 5,
+        child: SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              title: const Text('Sports App'),
+              bottom: const TabBar(
+                  indicatorColor: Colors.white,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.black,
+                  indicatorPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                  labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                  tabs: [
+                    Tab(
+                      text: 'Scores',
+                      icon: Icon(
+                        Icons.scoreboard_outlined,
+                        size: 30,
+                      ),
                     ),
-                    PlayersTab(players: players),
-                    FavoritesTab(teams: teams, favoriteTeamId: 4),
-                  ]);
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              }),
+                    Tab(
+                      text: ('Standings'),
+                      icon: Icon(
+                        Icons.list,
+                        size: 30,
+                      ),
+                    ),
+                    Tab(
+                      text: 'Teams',
+                      icon: Icon(
+                        Icons.sports_football_outlined,
+                        size: 30,
+                      ),
+                    ),
+                    Tab(
+                      text: 'Players',
+                      icon: Icon(
+                        Icons.person_outlined,
+                        size: 30,
+                      ),
+                    ),
+                    Tab(
+                      text: 'Favorites',
+                      icon: Icon(
+                        Icons.star,
+                        size: 30,
+                      ),
+                    )
+                  ]),
+            ),
+            drawer: Drawer(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  const DrawerHeader(child: Text('Notification Settings')),
+                  SwitchListTile(
+                    title: const Text('Enable Notifications'),
+                    value: Provider.of<DrawerModel>(context).notificationsOn,
+                    onChanged:
+                        Provider.of<DrawerModel>(context).toggleNotifications,
+                  )
+                ],
+              ),
+            ),
+            body: FutureBuilder(
+                future: Future.wait([_future, _notifications]),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return TabBarView(children: [
+                      ScoresTab(teams: teams, games: games),
+                      StandingsTab(teams: teams),
+                      TeamsTab(
+                        teams: teams,
+                      ),
+                      PlayersTab(players: players),
+                      FavoritesTab(teams: teams, favoriteTeamId: 4),
+                    ]);
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                }),
           ),
         ),
       ),

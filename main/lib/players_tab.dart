@@ -18,19 +18,20 @@ class PlayersTab extends StatefulWidget {
 
 class _PlayersTab extends State<PlayersTab> {
   final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
+  final himnishHeaders = {'x-rapidapi-key': '30206e5d618f7492ca4322ff246895a0'};
   List<Player> searchResults = [];
 
   void addFoundPlayers() {
     Provider.of<FavoritesModel>(context, listen: false)
-        .updateFoundSearch(searchResults);
+        .updateSearchResults(searchResults);
   }
 
-  Future getSingularPlayer(String name) async {
+  Future searchPlayers(String name) async {
     var requestSinglePlayer = http.Request(
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/players?search=$name'));
-    requestSinglePlayer.headers.addAll(jakeHeaders);
+    requestSinglePlayer.headers.addAll(himnishHeaders);
     http.StreamedResponse response = await requestSinglePlayer.send();
 
     if (response.statusCode == 200) {
@@ -55,13 +56,14 @@ class _PlayersTab extends State<PlayersTab> {
     }
   }
 
-  @override
+   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FavoritesModel>(context, listen: false).clearFoundSearch();
+      Provider.of<FavoritesModel>(context, listen: false).clearSearchResults();
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -77,13 +79,13 @@ class _PlayersTab extends State<PlayersTab> {
               hintText: 'Player Name...',
               hintStyle: const WidgetStatePropertyAll(TextStyle(fontStyle: FontStyle.italic)),
               onSubmitted: (value) async {
-                await getSingularPlayer(value);
+                await searchPlayers(value);
               },
             ),
           ),
           Expanded(
             child: ListView.builder(
-                itemCount: model.foundSearch.length,
+                itemCount: model.searchResults.length,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -93,7 +95,7 @@ class _PlayersTab extends State<PlayersTab> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ListTile(
-                        title: Text(model.foundSearch[index].name),
+                        title: Text(model.searchResults[index].name),
                         leading: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -101,9 +103,9 @@ class _PlayersTab extends State<PlayersTab> {
                               padding: const EdgeInsets.all(0),
                               child: IconButton(
                                 onPressed: () {
-                                  model.addFavPlayer(model.foundSearch[index]);
+                                  model.addFavPlayer(model.searchResults[index]);
                                 },
-                                icon: model.isFavPlayer(model.foundSearch[index].id)
+                                icon: model.isFavPlayer(model.searchResults[index].id)
                                     ? const Icon(
                                         Icons.star,
                                         color: Colors.yellow,
@@ -120,18 +122,18 @@ class _PlayersTab extends State<PlayersTab> {
                               height: 70,
                               child: Image(
                                   image: NetworkImage(
-                                model.foundSearch[index].image,
+                                model.searchResults[index].image,
                               )),
                             ),
                           ],
                         ),
-                        subtitle: Text(model.foundSearch[index].name),
+                        subtitle: Text(model.searchResults[index].name),
                         onTap: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => DisplayPlayer(
-                                      player: model.foundSearch[index],
+                                      player: model.searchResults[index],
                                       showAppBar: true)));
                         },
                       ),
@@ -143,64 +145,4 @@ class _PlayersTab extends State<PlayersTab> {
       ),
     );
   }
-  // Widget build(BuildContext context) {
-  //   return Consumer<FavoritesModel>(
-  //     builder: (context, model, child) => ListView.builder(
-  //         itemCount: 8,
-  //         itemBuilder: (context, index) {
-  //           return Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: Container(
-  //               decoration: BoxDecoration(
-  //                   color: Theme.of(context).colorScheme.primaryFixedDim,
-  //               ),
-  //               child: ListTile(
-  //                 title: Text(widget.players[index].name),
-  //                 leading: Row (
-  //                   mainAxisSize: MainAxisSize.min,
-  //                   children: [
-  //                     Container(
-  //                       width: 70,
-  //                       height: 70,
-  //                       child: Image(
-  //                           image: NetworkImage(
-  //                         widget.players[index].image,
-  //                       )),
-  //                     ),
-  //                     Padding(
-  //                       padding: const EdgeInsets.all(0),
-  //                       child: IconButton(
-  //                         onPressed: () {
-  //                           model.addFavPlayer(widget.players[index]);
-  //                         },
-  //                         icon: model.isFavPlayer(widget.players[index])
-  //                           ? const Icon(
-  //                             Icons.star,
-  //                             color: Colors.yellow,
-  //                           )
-  //                         : const Icon(Icons.star_border, color: Colors.black,),
-  //                         iconSize: 35.0,
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 subtitle: Text(widget.players[index].name),
-  //                 onTap: () {
-  //                   Navigator.push(
-  //                     context,
-  //                     MaterialPageRoute(
-  //                       builder: (context) =>
-  //                         DisplayPlayer(player: widget.players[index], showAppBar: true)
-  //                     )
-  //                   );
-  //                 },
-
-  //               ),
-  //             ),
-  //           );
-  //         }
-
-  //     )
-  //   );
-  // }
 }
