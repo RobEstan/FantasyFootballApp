@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:main/drawer_model.dart';
 import 'package:provider/provider.dart';
 import './favorites_model.dart';
 import './team.dart';
@@ -424,11 +425,14 @@ class _DisplayTeam extends State<DisplayTeam> {
                     ],
                   ),
                 ),
-                floatingActionButton: FloatingActionButton(
-                  onPressed: () async {
-                    await showNotification();
-                  },
-                  child: const Icon(Icons.notifications_active),
-                ))));
+                floatingActionButton: Provider.of<DrawerModel>(context).notificationsOn
+                  ? FloatingActionButton(
+                      onPressed: () async {
+                        await showNotification();
+                      },
+                      child: const Icon(Icons.notifications_active),
+                    )
+                  : null,
+)));
   }
 }

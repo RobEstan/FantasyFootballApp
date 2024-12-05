@@ -6,6 +6,7 @@ import './player.dart';
 class FavoritesModel extends ChangeNotifier {
   List<Team> favoriteTeams = [];
   List<Player> favoritePlayers = [];
+  List<Player> searchResults = [];
 
   void saveToSharedPrefs() async {
     List<String> favTeamNames = [];
@@ -41,9 +42,15 @@ class FavoritesModel extends ChangeNotifier {
   }
 
   void addFavPlayer(Player player) {
-    if (favoritePlayers.contains(player)) {
-      favoritePlayers.remove(player);
-    } else {
+    bool found = false;
+    for (Player p in favoritePlayers) {
+      if (p.id == player.id) {
+        found = true;
+        favoritePlayers.remove(p);
+        break;
+      }
+    }
+    if (!found) {
       favoritePlayers.add(player);
     }
     saveToSharedPrefs();
@@ -58,11 +65,24 @@ class FavoritesModel extends ChangeNotifier {
     return false;
   }
 
-  bool isFavPlayer(Player player) {
-      if (favoritePlayers.contains(player)) {
+  bool isFavPlayer(int id) {
+    for (Player player in favoritePlayers) {
+      if (player.id == id) {
         return true;
       }
-
-      return false;
     }
+    return false;
+  }
+
+  void updateSearchResults(List<Player> results) {
+    searchResults = results;
+    notifyListeners();
+  }
+
+  void clearSearchResults() {
+    searchResults = [];
+    notifyListeners();
+  }
+
+
 }

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 final jakeHeaders = {'x-rapidapi-key': 'd5acb40e57a90447afa2bfcba8f332e2'};
+final himnishHeaders = {'x-rapidapi-key': '30206e5d618f7492ca4322ff246895a0'};
 
 late List<dynamic> lastGame;
 int notifId = 0;
@@ -29,7 +30,7 @@ Future<void> callAPI() async {
         'GET',
         Uri.parse(
             'https://v1.american-football.api-sports.io/games?league=1&season=2024&team=${int.parse(id)}'));
-    requestGames.headers.addAll(jakeHeaders);
+    requestGames.headers.addAll(himnishHeaders);
     http.StreamedResponse response = await requestGames.send();
 
     if (response.statusCode == 200) {
@@ -40,6 +41,7 @@ Future<void> callAPI() async {
         
         if (currData['game']['status']['long'] != 'Not Started') {
           lastGame[x] = Game(
+            id: currData['game']['id'],
             stage: currData['game']['stage'],
             week: currData['game']['week'],
             date: currData['game']['date']['date'],
