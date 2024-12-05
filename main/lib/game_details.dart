@@ -69,12 +69,12 @@ class OtherView extends StatelessWidget {
     if (response.statusCode == 200) {
       var jsonData =
           jsonDecode(await response.stream.bytesToString())['response'];
-      Map<String, dynamic> awayStats = {
+      Map<String, dynamic> homeStats = {
         'totalYards': jsonData[0]['statistics']['yards']['total'],
         'passingYards': jsonData[0]['statistics']['passing']['total'],
         'rushingYards': jsonData[0]['statistics']['rushings']['total']
       };
-      Map<String, dynamic> homeStats = {
+      Map<String, dynamic> awayStats = {
         'totalYards': jsonData[1]['statistics']['yards']['total'],
         'passingYards': jsonData[1]['statistics']['passing']['total'],
         'rushingYards': jsonData[1]['statistics']['rushings']['total']
